@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Capturas das telas do YewPlay num emulador (workflow yewplay-telas.yml).
+# Capturas das telas do YewMusic num emulador (workflow yewmusic-telas.yml).
 # Navega pelo texto dos botões (uiautomator), não por coordenadas, e salva PNGs em build/screens.
 # Nunca falha o job por uma tela que não abriu: a captura que faltar já diz o que houve.
 set -u
-PKG=com.yewplay.debug  # o build de debug tem o sufixo .debug
+PKG=com.yewmusic.debug  # o build de debug tem o sufixo .debug
 DIR=smarttubetv/build/outputs/renamed_apks/stmobileDebug
 APK=$(ls "$DIR"/*universal*.apk 2>/dev/null | head -1)
 [ -z "$APK" ] && APK=$(ls "$DIR"/*.apk | head -1)

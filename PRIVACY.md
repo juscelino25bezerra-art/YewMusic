@@ -3,7 +3,7 @@
 **Last updated:** November 4, 2026
 
 This Privacy Policy applies to **YewPlay**, an open-source YouTube client for
-Android phones (package ID `com.yewplay`). YewPlay is an
+Android phones (package ID `com.yewmusic`). YewMusic is an
 independent, unofficial fork of NewTube, which is itself a fork of SmartTube. It is not affiliated with Google,
 YouTube, or the developers of SmartTube or NewTube.
 

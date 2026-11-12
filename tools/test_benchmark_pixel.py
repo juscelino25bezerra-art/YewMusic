@@ -13,15 +13,15 @@ SPEC.loader.exec_module(BENCHMARK)
 
 class BenchmarkParsersTest(unittest.TestCase):
     def test_target_uid_is_exact_not_first_prefix_match(self):
-        packages = ('package:com.yewplay.benchmark uid:10790\r\n'
-                    'package:com.yewplay.test uid:10789\r\n'
-                    'package:com.yewplay uid:10707\r\n')
-        self.assertEqual(10707, BENCHMARK.package_uid(packages, 'com.yewplay'))
+        packages = ('package:com.yewmusic.benchmark uid:10790\r\n'
+                    'package:com.yewmusic.test uid:10789\r\n'
+                    'package:com.yewmusic uid:10707\r\n')
+        self.assertEqual(10707, BENCHMARK.package_uid(packages, 'com.yewmusic'))
 
     def test_missing_target_does_not_use_test_or_other_variant(self):
-        packages = ('package:com.yewplay.test uid:10789\n'
-                    'package:com.yewplay.debug uid:10790\n')
-        self.assertIsNone(BENCHMARK.package_uid(packages, 'com.yewplay'))
+        packages = ('package:com.yewmusic.test uid:10789\n'
+                    'package:com.yewmusic.debug uid:10790\n')
+        self.assertIsNone(BENCHMARK.package_uid(packages, 'com.yewmusic'))
 
     def test_uid_bytes_use_final_map_not_health_summary(self):
         netstats = ('mAppUidStatsMap: OK\nother health output\n'

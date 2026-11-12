@@ -18,7 +18,7 @@ import time
 import uuid
 
 
-TEST_PACKAGE = 'com.yewplay.benchmark'
+TEST_PACKAGE = 'com.yewmusic.benchmark'
 FIXTURE_PROPERTY = 'debug.arc.benchmark_fixture'
 FIXTURE_ACTIVITY = 'com.newtube.mobile.player.BenchmarkPlaybackActivity'
 CLASSES = {
@@ -49,9 +49,9 @@ def main():
     parser.add_argument('--mode', choices=CLASSES, default='fixture')
     parser.add_argument('--compilation', choices=('keep', 'none', 'baseline'), default='keep')
     parser.add_argument('--iterations', type=int, default=5)
-    parser.add_argument('--package', choices=('com.yewplay',
-                                            'com.yewplay.debug'),
-                        default='com.yewplay')
+    parser.add_argument('--package', choices=('com.yewmusic',
+                                            'com.yewmusic.debug'),
+                        default='com.yewmusic')
     args = parser.parse_args()
     if not 1 <= args.iterations <= 30:
         parser.error('iterations must be between 1 and 30')
