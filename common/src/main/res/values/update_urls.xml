@@ -2,8 +2,8 @@
 <resources>
     <string-array name="update_urls">
         <!-- YEWPLAY: updates come from this fork's own releases, never from upstream NewTube.
-             release.yml attaches yewplay.json to every tagged release; until the first release
+             release.yml attaches yewmusic.json to every tagged release; until the first release
              exists the check simply reports that it couldn't reach the feed. -->
-        <item>https://github.com/juscelino25bezerra-art/YewPlay/releases/latest/download/yewplay.json</item>
+        <item>https://github.com/juscelino25bezerra-art/YewMusic/releases/latest/download/yewmusic.json</item>
     </string-array>
 </resources>

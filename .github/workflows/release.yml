@@ -5,7 +5,7 @@ name: Build release
 # draft stays a manual step, and publishing is what starts the VirusTotal scan.
 #
 # The attestation lets anyone check that an APK was built here, from the tagged source:
-#   gh attestation verify YewPlay_<version>_arm64-v8a.apk -R juscelino25bezerra-art/YewPlay
+#   gh attestation verify YewMusic_<version>_arm64-v8a.apk -R juscelino25bezerra-art/YewMusic
 #
 # The signing key only exists in the `release` environment's secrets, which only `main` and
 # `v*` tags can use: RELEASE_KEYSTORE_BASE64 (the .jks file, base64), RELEASE_KEYSTORE_PASSWORD,
@@ -16,10 +16,10 @@ name: Build release
 # ON the tag: gh workflow run release.yml --ref v1.10.3. Run on main, it is a test build: the APKs
 # are attested and kept as a workflow artifact, and no release is touched.
 #
-# It also builds YewPlay_<version>_fdroid_universal.apk, the twin of F-Droid's own build: F-Droid
+# It also builds YewMusic_<version>_fdroid_universal.apk, the twin of F-Droid's own build: F-Droid
 # builds the same commit with -Pfdroid and publishes its build only if it matches this APK apart
 # from the signature, which it then copies, so F-Droid installs carry the release signature
-# (reproducible builds). A recipe (fdroiddata metadata/com.yewplay.yml) sets
+# (reproducible builds). A recipe (fdroiddata metadata/com.yewmusic.yml) sets
 # the same three things this file does: SOURCE_DATE_EPOCH = the commit time, cmdline-tools
 # $CMDLINE_TOOLS_VERSION's profgen for the embedded ART profile, and no J2V8 jniLibs. The update
 # manifest never points at this APK. fdroid-twin.yml adds it to a release published without one.
@@ -47,7 +47,7 @@ jobs:
       attestations: write
     env:
       TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
-      # YEWPLAY: SHA-256 of the certificate YewPlay releases are signed with. It is NOT
+      # YEWMUSIC: SHA-256 of the certificate YewMusic releases are signed with. It is NOT
       # upstream NewTube's (that key belongs to upstream). Set it once as the repository variable
       # RELEASE_CERT_SHA256 (Settings -> Secrets and variables -> Actions -> Variables):
       #   keytool -list -v -keystore release.jks | grep SHA256   (lowercase, without the colons)
@@ -104,7 +104,7 @@ jobs:
           set -euo pipefail
           ./gradlew --no-daemon --stacktrace :smarttubetv:assembleStmobileRelease -PprofgenPath="$PROFGEN"
           mkdir dist
-          cp smarttubetv/build/outputs/renamed_apks/stmobileRelease/YewPlay_*.apk dist/
+          cp smarttubetv/build/outputs/renamed_apks/stmobileRelease/YewMusic_*.apk dist/
 
       # From a clean build, as F-Droid's is, and without the J2V8 libs its recipe deletes.
       - name: Build the F-Droid APK
@@ -112,7 +112,7 @@ jobs:
           set -euo pipefail
           rm -rf SharedModules/j2v8/src/main/jniLibs MediaServiceCore/SharedModules/j2v8/src/main/jniLibs
           ./gradlew --no-daemon --stacktrace clean :smarttubetv:assembleStmobileRelease -Pfdroid -PprofgenPath="$PROFGEN"
-          cp smarttubetv/build/outputs/renamed_apks/stmobileRelease/YewPlay_*_fdroid_universal.apk dist/
+          cp smarttubetv/build/outputs/renamed_apks/stmobileRelease/YewMusic_*_fdroid_universal.apk dist/
 
       - name: Remove the signing key
         if: always()
@@ -130,7 +130,7 @@ jobs:
             version="${TAG#v}"
             for apk in dist/*.apk; do
               case "$(basename "$apk")" in
-                "YewPlay_${version}_"*) ;;
+                "YewMusic_${version}_"*) ;;
                 *) echo "::error::$(basename "$apk") doesn't match tag $TAG. Bump versionName first."; exit 1 ;;
               esac
             done
@@ -142,20 +142,20 @@ jobs:
             certs="$(printf '%s\n' "$out" | grep -oE 'certificate SHA-256 digest: [0-9a-f]{64}' | awk '{print $4}' | sort -u)"
             if [ "$certs" != "$EXPECTED_CERT" ]; then
               echo "$out"
-              echo "::error::$(basename "$apk") is signed with '${certs}', not YewPlay's certificate."
+              echo "::error::$(basename "$apk") is signed with '${certs}', not YewMusic's certificate."
               exit 1
             fi
-            echo "$(basename "$apk"): signed with YewPlay's certificate"
+            echo "$(basename "$apk"): signed with YewMusic's certificate"
           done
           (cd dist && sha256sum -- *.apk > SHA256SUMS && cat SHA256SUMS)
 
       # The in-app updater's manifest, served from the release as
-      # releases/latest/download/yewplay.json once it's published (common/.../update_urls.xml).
+      # releases/latest/download/yewmusic.json once it's published (common/.../update_urls.xml).
       - name: Write the update manifest
         if: env.TAG != ''
         run: |
-          python3 tools/update_manifest.py --tag "$TAG" --dist dist --out dist/yewplay.json
-          cat dist/yewplay.json
+          python3 tools/update_manifest.py --tag "$TAG" --dist dist --out dist/yewmusic.json
+          cat dist/yewmusic.json
 
       - name: Attest the build
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
@@ -167,7 +167,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: YewPlay-${{ env.TAG || github.sha }}
+          name: YewMusic-${{ env.TAG || github.sha }}
           if-no-files-found: ignore
           path: dist/
           retention-days: 14
@@ -186,6 +186,6 @@ jobs:
             fi
             gh release upload "$TAG" dist/* --clobber
           else
-            gh release create "$TAG" dist/* --draft --verify-tag --title "YewPlay ${TAG#v}" \
+            gh release create "$TAG" dist/* --draft --verify-tag --title "YewMusic ${TAG#v}" \
               --notes "Built by GitHub Actions run ${{ github.run_id }} from $TAG. Write the notes, then publish."
           fi

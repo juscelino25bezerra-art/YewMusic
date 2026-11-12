@@ -48,7 +48,7 @@ abstract class CopyRenamedApks extends DefaultTask {
         builtArtifacts.elements.each { artifact ->
             def abi = artifact.filters.find { it.filterType.toString() == 'ABI' }?.identifier ?: 'universal'
             def version = artifact.versionName ?: 'unknown'
-            def outputFile = new File(outputDirectory, "YewPlay_${version}_${nameTag.get()}${abi}.apk")
+            def outputFile = new File(outputDirectory, "YewMusic_${version}_${nameTag.get()}${abi}.apk")
             Files.copy(new File(artifact.outputFile).toPath(), outputFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
         }
     }
@@ -305,7 +305,7 @@ android {
         stmobile {
             // YEWPLAY: this fork's own applicationId, so it installs beside upstream NewTube and
             // never receives its updates. Permanent once released.
-            applicationId "com.yewplay"
+            applicationId "com.yewmusic"
             minSdk = 24 // media3 1.10.x floor is 23; 24 = project-wide minimum
             targetSdk = project.ext.targetSdkVersion
             // NewTube versions independently of upstream SmartTube (defaultConfig carries the

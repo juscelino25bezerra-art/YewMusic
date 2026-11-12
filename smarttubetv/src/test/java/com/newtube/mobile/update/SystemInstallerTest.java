@@ -35,7 +35,7 @@ public class SystemInstallerTest {
     @Before
     public void setUp() {
         pm = RuntimeEnvironment.getApplication().getPackageManager();
-        Uri uri = Uri.parse("content://com.yewplay.fileprovider/update.apk");
+        Uri uri = Uri.parse("content://com.yewmusic.fileprovider/update.apk");
         view = new Intent(Intent.ACTION_VIEW).setDataAndType(uri, APK);
         //noinspection deprecation
         install = new Intent(Intent.ACTION_INSTALL_PACKAGE).setDataAndType(uri, APK);
