@@ -698,6 +698,7 @@ public class MobilePlaybackActivity extends MobileActivity
         mSpinnerShown = mProgressBar != null && mProgressBar.getVisibility() == View.VISIBLE;
         syncPlayPauseWithSpinner();
         mSetupHint = findViewById(R.id.mobile_player_setup_hint);
+        bindMusicMode();
         mNoticeView = findViewById(R.id.mobile_player_notice);
         mCastButton = findViewById(R.id.mobile_player_cast);
         mCastOverlay = findViewById(R.id.mobile_cast_overlay);
@@ -1241,7 +1242,7 @@ public class MobilePlaybackActivity extends MobileActivity
 
         // An engine restart (error fix, network flap) while backgrounded builds a FRESH selector
         // with video re-enabled; re-apply the audio-only drop so the restart doesn't resume video.
-        if (mBackgroundAudioMode) {
+        if (mBackgroundAudioMode || MusicMode.isOn(this)) { // YEWMUSIC(player): e o modo Música
             mExoPlayerController.setVideoTrackDisabled(true);
         }
 
@@ -1671,7 +1672,8 @@ public class MobilePlaybackActivity extends MobileActivity
     private void setBackgroundAudioMode(boolean enabled) {
         mBackgroundAudioMode = enabled;
         if (mExoPlayerController != null) {
-            mExoPlayerController.setVideoTrackDisabled(enabled);
+            // YEWMUSIC(player): voltando do segundo plano, o modo Música continua sem vídeo.
+            mExoPlayerController.setVideoTrackDisabled(enabled || MusicMode.isOn(this));
             // NEWTUBE(keep-codec): no decoder kept for the next open while nothing is on screen.
             mExoPlayerController.onBackgroundAudio(enabled);
         }
@@ -4743,7 +4745,12 @@ public class MobilePlaybackActivity extends MobileActivity
                     // rendered frame is the new video, so let onSurfaceTextureUpdated lift it then.
                     if (mStillAwaitReady) {
                         mStillAwaitReady = false;
-                        if (canLiftStillAtReady()) {
+                        // YEWMUSIC(player): no modo Música nenhum quadro vai chegar - a capa já
+                        // cobre o vídeo, então a imagem de carregamento sai no READY.
+                        if (MusicMode.isOn(MobilePlaybackActivity.this)) {
+                            mStillAwaitFrame = false;
+                            liftLoadingStill("music");
+                        } else if (canLiftStillAtReady()) {
                             mStillAwaitFrame = false;
                             liftLoadingStill("ready");
                         } else {
@@ -9009,6 +9016,83 @@ public class MobilePlaybackActivity extends MobileActivity
     // PlayerManager
     // ---------------------------------------------------------------------------------
 
+    // ---------------------------------------------------------------------------------
+    // YEWMUSIC(player): seletor Música | Vídeo
+    // ---------------------------------------------------------------------------------
+
+    private View mMusicLayer;
+    private ImageView mMusicCover;
+    private ImageView mMusicCoverBg;
+    private TextView mModeMusic;
+    private TextView mModeVideo;
+    private String mMusicCoverVideoId;
+
+    private void bindMusicMode() {
+        mMusicLayer = findViewById(R.id.yew_music_layer);
+        mMusicCover = findViewById(R.id.yew_music_cover);
+        mMusicCoverBg = findViewById(R.id.yew_music_cover_bg);
+        mModeMusic = findViewById(R.id.yew_mode_music);
+        mModeVideo = findViewById(R.id.yew_mode_video);
+        if (mModeMusic != null) {
+            mModeMusic.setOnClickListener(v -> setMusicMode(true));
+        }
+        if (mModeVideo != null) {
+            mModeVideo.setOnClickListener(v -> setMusicMode(false));
+        }
+        applyMusicModeUi();
+    }
+
+    private void setMusicMode(boolean music) {
+        if (MusicMode.isOn(this) == music) {
+            return;
+        }
+        MusicMode.set(this, music);
+        if (mExoPlayerController != null) {
+            mExoPlayerController.setVideoTrackDisabled(music || mBackgroundAudioMode);
+        }
+        applyMusicModeUi();
+        if (music) {
+            bindMusicCover(getVideo());
+        }
+    }
+
+    private void applyMusicModeUi() {
+        boolean music = MusicMode.isOn(this);
+        if (mMusicLayer != null) {
+            mMusicLayer.setVisibility(music ? View.VISIBLE : View.GONE);
+        }
+        styleModeOption(mModeMusic, music);
+        styleModeOption(mModeVideo, !music);
+    }
+
+    private void styleModeOption(TextView option, boolean selected) {
+        if (option == null) {
+            return;
+        }
+        option.setBackgroundResource(selected ? R.drawable.bg_yew_segment_on : 0);
+        option.setTextColor(androidx.core.content.ContextCompat.getColor(this,
+                selected ? R.color.mobile_color_on_inverse_surface : R.color.mobile_color_on_surface));
+        option.setSelected(selected);
+    }
+
+    /**
+     * A capa do vídeo atual nas duas camadas. Pelo Glide da APLICAÇÃO, como a imagem de
+     * carregamento: o da activity fica pausado enquanto o vídeo abre (holdImageRequests).
+     */
+    private void bindMusicCover(Video item) {
+        if (mMusicCover == null || item == null || item.videoId == null
+                || Helpers.equals(item.videoId, mMusicCoverVideoId) || isDestroyed()) {
+            return;
+        }
+        mMusicCoverVideoId = item.videoId;
+        com.bumptech.glide.RequestManager glide = Glide.with(getApplicationContext());
+        String fallback = MusicMode.fallbackCoverUrl(item);
+        glide.load(MusicMode.coverUrl(item))
+                .error(glide.load(fallback))
+                .into(mMusicCover);
+        glide.load(fallback).into(mMusicCoverBg);
+    }
+
     @Override
     public void setVideo(Video item) {
         if (item != null && item.videoId != null) {
@@ -9040,6 +9124,9 @@ public class MobilePlaybackActivity extends MobileActivity
             setTitle(item != null ? item.getTitleFull() : null);
         }
         bindWatchVideo(item);
+        if (!sameVideo) {
+            runOnUiThread(() -> bindMusicCover(item));
+        }
 
         // LOADING STILL: a DIFFERENT video was just set on this (reused) view. The texture still
         // shows the previous video's last frame and the new audio starts as soon as it buffers,

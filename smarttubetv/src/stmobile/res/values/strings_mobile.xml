@@ -504,4 +504,7 @@
     <string name="yew_greeting_morning">Good morning</string>
     <string name="yew_greeting_afternoon">Good afternoon</string>
     <string name="yew_greeting_evening">Good evening</string>
+    <string name="yew_mode_music">Music</string>
+    <string name="yew_mode_video">Video</string>
+    <string name="yew_mode_switch_desc">Play as music or as video</string>
 </resources>

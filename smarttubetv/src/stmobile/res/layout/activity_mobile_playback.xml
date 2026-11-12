@@ -75,6 +75,62 @@
                 app:yt_animationDuration="500"
                 app:yt_seekSeconds="10" />
 
+            <!-- YEWMUSIC(player): no modo Música, a capa no lugar do vídeo - a própria capa ampliada
+                 e escurecida ao fundo (o tom da capa) e a capa quadrada no centro. Fica sob os
+                 controles, que continuam recebendo os toques. -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/yew_music_layer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FF141416"
+                android:importantForAccessibility="no"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/yew_music_cover_bg"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:alpha="0.45"
+                    android:contentDescription="@null"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="#66000000"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="18dp"
+                    android:layout_marginBottom="18dp"
+                    app:cardBackgroundColor="#FF242428"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="6dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:strokeWidth="0dp">
+
+                    <ImageView
+                        android:id="@+id/yew_music_cover"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@null"
+                        android:scaleType="centerCrop" />
+                </com.google.android.material.card.MaterialCardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <!-- Custom controls overlay. clickable so taps on empty space hide it. -->
             <FrameLayout
                 android:id="@+id/mobile_controls_root"
@@ -646,6 +702,44 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingBottom="24dp">
+
+                <!-- YEWMUSIC(player): o seletor Música | Vídeo, logo abaixo do player. -->
+                <LinearLayout
+                    android:id="@+id/yew_mode_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_yew_segment_track"
+                    android:contentDescription="@string/yew_mode_switch_desc"
+                    android:orientation="horizontal"
+                    android:padding="3dp">
+
+                    <TextView
+                        android:id="@+id/yew_mode_music"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:minWidth="88dp"
+                        android:background="@drawable/bg_yew_segment_on"
+                        android:fontFamily="@font/instrument_semibold"
+                        android:gravity="center"
+                        android:paddingHorizontal="18dp"
+                        android:text="@string/yew_mode_music"
+                        android:textColor="@color/mobile_color_on_inverse_surface"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/yew_mode_video"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:minWidth="88dp"
+                        android:fontFamily="@font/instrument_semibold"
+                        android:gravity="center"
+                        android:paddingHorizontal="18dp"
+                        android:text="@string/yew_mode_video"
+                        android:textColor="@color/mobile_color_on_surface"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
                 <!-- Title -->
                 <TextView
