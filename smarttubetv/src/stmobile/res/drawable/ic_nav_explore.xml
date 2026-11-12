@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- YEWMUSIC(nav): Explorar - preenchido quando a aba está ativa, contorno no resto. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_nav_explore_fill" android:state_checked="true" />
+    <item android:drawable="@drawable/ic_nav_explore_outline" />
+</selector>

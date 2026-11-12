@@ -392,4 +392,8 @@
     <string name="yew_download_deleted">Download excluído</string>
     <!-- YEWPLAY(library): títulos da Biblioteca. -->
     <string name="yew_library_continue">Continue de onde parou</string>
+    <string name="yew_nav_explore">Explorar</string>
+    <string name="yew_greeting_morning">Bom dia</string>
+    <string name="yew_greeting_afternoon">Boa tarde</string>
+    <string name="yew_greeting_evening">Boa noite</string>
 </resources>

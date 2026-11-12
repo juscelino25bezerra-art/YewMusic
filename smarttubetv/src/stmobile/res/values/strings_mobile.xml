@@ -500,4 +500,8 @@
     <string name="yew_download_deleted">Download deleted</string>
     <!-- YEWPLAY(library): títulos da Biblioteca. -->
     <string name="yew_library_continue">Continue where you left off</string>
+    <string name="yew_nav_explore">Explore</string>
+    <string name="yew_greeting_morning">Good morning</string>
+    <string name="yew_greeting_afternoon">Good afternoon</string>
+    <string name="yew_greeting_evening">Good evening</string>
 </resources>
