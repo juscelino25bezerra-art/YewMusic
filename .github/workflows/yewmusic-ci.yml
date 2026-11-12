@@ -1,13 +1,13 @@
-name: YewPlay CI
+name: YewMusic CI
 
-# YEWPLAY: build de verificação de cada fase. Roda em todo push para yewplay/** e em PRs para
+# YEWMUSIC: build de verificação de cada fase. Roda em todo push para yewmusic/** e em PRs para
 # main: confere a tradução pt-BR, compila o APK de debug, roda os testes unitários e guarda o APK
 # como artefato do workflow (Actions -> esta execução -> Artifacts) para instalar no celular.
 # O CI.yml herdado do SmartTube compila o flavor stbeta, que não existe mais.
 
 on:
   push:
-    branches: ["yewplay/**"]
+    branches: ["yewmusic/**"]
   pull_request:
     branches: ["main"]
   workflow_dispatch:
@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: yewplay-ci-${{ github.ref }}
+  group: yewmusic-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -61,7 +61,7 @@ jobs:
       - name: Keep the APK
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: YewPlay-debug-${{ github.sha }}
+          name: YewMusic-debug-${{ github.sha }}
           path: smarttubetv/build/outputs/renamed_apks/stmobileDebug/*.apk
           if-no-files-found: error
           retention-days: 14

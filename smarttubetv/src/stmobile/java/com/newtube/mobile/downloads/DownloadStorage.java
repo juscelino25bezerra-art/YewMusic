@@ -30,7 +30,7 @@ import java.io.IOException;
  * write without a runtime permission there; a media scan makes it visible.
  */
 final class DownloadStorage {
-    private static final String FOLDER = "YewPlay";
+    private static final String FOLDER = "YewMusic";
 
     /** An output the muxer can write to, plus what is needed to finish or abandon it. */
     static final class Target {

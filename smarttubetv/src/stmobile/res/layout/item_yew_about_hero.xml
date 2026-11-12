@@ -55,7 +55,7 @@
                     android:letterSpacing="-0.02"
                     android:textColor="@color/mobile_color_on_surface"
                     android:textSize="26sp"
-                    tools:text="YewPlay" />
+                    tools:text="YewMusic" />
 
                 <TextView
                     android:id="@+id/yew_about_version"

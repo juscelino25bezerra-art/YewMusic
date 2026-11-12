@@ -29,7 +29,7 @@ public class StreamFetcherTest {
         target.delete();
         StreamFetcher fetcher = new StreamFetcher("test-agent");
 
-        assertNull(fetcher.fetchSmall("file:///data/user/0/com.yewplay/files/downloads/x.jpg", target));
+        assertNull(fetcher.fetchSmall("file:///data/user/0/com.yewmusic/files/downloads/x.jpg", target));
         assertFalse(target.exists());
     }
 

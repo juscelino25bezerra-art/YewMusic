@@ -1,20 +1,20 @@
-name: YewPlay telas
+name: YewMusic telas
 
-# YEWPLAY: capturas das telas principais num emulador (Android 14, pt-BR, temas escuro e claro)
+# YEWMUSIC: capturas das telas principais num emulador (Android 14, pt-BR, temas escuro e claro)
 # para conferir o visual contra a proposta sem um aparelho. Compila o APK de debug com libs
 # x86_64 (-PemulatorAbi), navega pelo texto dos botões (tools/screens/capture.sh) e imprime as
 # capturas no log (tools/screens/print_screens.py); também as guarda como artefato.
 
 on:
   push:
-    branches: ["yewplay/**"]
+    branches: ["yewmusic/**"]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: yewplay-telas-${{ github.ref }}
+  group: yewmusic-telas-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -65,7 +65,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: YewPlay-telas-${{ github.sha }}
+          name: YewMusic-telas-${{ github.sha }}
           path: build/screens/*.png
           if-no-files-found: ignore
           retention-days: 14

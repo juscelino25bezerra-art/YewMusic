@@ -1,4 +1,14 @@
-# YewPlay — Claude Code context
+# YewMusic — Claude Code context
+
+**YewMusic** is the music sibling of **YewPlay** (github.com/juscelino25bezerra-art/YewPlay):
+a separate app that started as a copy of YewPlay's code (remote `yewplay`) and turns its UI
+toward listening to music. Mockup of the target screens: Início, Player (Música | Vídeo),
+Busca, Biblioteca. Package `com.yewmusic` (installs beside YewPlay), visible name **YewMusic**,
+downloads folder `YewMusic`, update manifest `yewmusic.json`. Work happens on
+`yewmusic/<fase>` branches. Fixes to the shared engine can be brought over from YewPlay with
+`git fetch yewplay && git cherry-pick`.
+
+Everything below was written for YewPlay and still applies to this code base.
 
 **YewPlay** is a fork of **NewTube** (github.com/aleixrodriala/newtube), itself a
 **phone-only fork of SmartTube**. YewPlay adds its own identity, a complete pt-BR
@@ -36,7 +46,7 @@ screen in `ui/settings/`: a new setting is a row there (design and per-row audit
 `docs/settings/`), never a row in the TV `*SettingsPresenter`s, which Settings no longer opens. GTM: `docs/gtm/` is the archived July plan (its copy breaks the current rules); the live launch plan lives outside the repo.
 
 ## Repos & commit order
-- Main: `origin` = github.com/juscelino25bezerra-art/YewPlay, branch `main`.
+- Main: `origin` = github.com/juscelino25bezerra-art/YewMusic, branch `main`; `yewplay` = github.com/juscelino25bezerra-art/YewPlay.
   Upstream NewTube: github.com/aleixrodriala/newtube.
 - Submodules `MediaServiceCore` and `SharedModules` still point at **NewTube's forks**
   (aleixrodriala/<name>, `upstream` = yuliskov/<name>, branch `master`). YewPlay cannot push

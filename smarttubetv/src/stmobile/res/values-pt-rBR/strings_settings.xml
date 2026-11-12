@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="mobile_settings_restart_needed">Reinicie o YewPlay para aplicar a mudança</string>
+    <string name="mobile_settings_restart_needed">Reinicie o YewMusic para aplicar a mudança</string>
     <string name="mobile_settings_restart">Reiniciar</string>
     <string name="mobile_settings_off">Desativado</string>
     <string name="mobile_settings_more">Mais</string>
@@ -119,9 +119,9 @@
     <string name="mobile_settings_watch_history_auto">Seguir minha configuração do YouTube</string>
     <string name="mobile_settings_watch_history_auto_desc">Salvo se sua conta do YouTube mantém o histórico</string>
     <string name="mobile_settings_watch_history_on">Sempre salvar</string>
-    <string name="mobile_settings_watch_history_on_desc">Reativa seu histórico do YouTube sempre que o YewPlay abre</string>
+    <string name="mobile_settings_watch_history_on_desc">Reativa seu histórico do YouTube sempre que o YewMusic abre</string>
     <string name="mobile_settings_watch_history_off">Não salvar</string>
-    <string name="mobile_settings_watch_history_off_desc">O YewPlay deixa de informar ao YouTube o que você assiste</string>
+    <string name="mobile_settings_watch_history_off_desc">O YewMusic deixa de informar ao YouTube o que você assiste</string>
     <string name="mobile_settings_clear_watch_history">Limpar histórico de exibição</string>
     <string name="mobile_settings_clear_watch_history_summary">Apaga os vídeos assistidos do seu histórico do YouTube</string>
     <string name="mobile_settings_clear_watch_history_confirm">Limpar histórico de exibição?</string>
@@ -131,7 +131,7 @@
     <string name="mobile_settings_clear_search_history">Limpar histórico de pesquisa</string>
     <string name="mobile_settings_clear_search_history_summary">Apaga as pesquisas salvas neste celular</string>
     <string name="mobile_settings_clear_search_history_confirm">Limpar histórico de pesquisa?</string>
-    <string name="mobile_settings_clear_search_history_body">As pesquisas que o YewPlay salvou neste celular serão apagadas. Isso não pode ser desfeito.</string>
+    <string name="mobile_settings_clear_search_history_body">As pesquisas que o YewMusic salvou neste celular serão apagadas. Isso não pode ser desfeito.</string>
     <string name="mobile_settings_backup_now">Fazer backup agora</string>
     <string name="mobile_settings_backup_now_summary">Salva suas configurações em %1$s</string>
     <string name="mobile_settings_backup_done">Backup salvo</string>
@@ -139,7 +139,7 @@
     <string name="mobile_settings_restore_summary">De um backup em %1$s</string>
     <string name="mobile_settings_auto_backup">Backup automático</string>
     <string name="mobile_settings_auto_backup_off">Nunca</string>
-    <string name="mobile_settings_backup_note">O backup guarda tudo o que você configurou no YewPlay. O que pertence à sua conta do YouTube, como inscrições e histórico, continua lá.</string>
+    <string name="mobile_settings_backup_note">O backup guarda tudo o que você configurou no YewMusic. O que pertence à sua conta do YouTube, como inscrições e histórico, continua lá.</string>
     <string name="mobile_settings_video_ends">Quando um vídeo termina</string>
     <string name="mobile_settings_video_ends_next">Reproduzir o próximo vídeo</string>
     <string name="mobile_settings_video_ends_repeat">Repetir o vídeo</string>
@@ -156,7 +156,7 @@
     <string name="mobile_settings_remember_speed_video">Para cada vídeo</string>
     <string name="mobile_settings_remember_speed_all">A mesma para todos os vídeos</string>
     <string name="mobile_settings_remember_speed_none">Não lembrar</string>
-    <string name="mobile_settings_remember_speed_none_desc">Volta para 1x sempre que o YewPlay abre</string>
+    <string name="mobile_settings_remember_speed_none_desc">Volta para 1x sempre que o YewMusic abre</string>
     <string name="mobile_settings_speed_list">Velocidades em Mais velocidades</string>
     <string name="mobile_settings_speed_list_basic">Uma lista curta</string>
     <string name="mobile_settings_speed_list_fine">Passos menores</string>
@@ -191,7 +191,7 @@
     <string name="mobile_settings_loudness">Equalizar volume</string>
     <string name="mobile_settings_loudness_summary">Abaixa vídeos muito altos para o nível normal do YouTube</string>
     <string name="mobile_settings_player_volume">Volume do player</string>
-    <string name="mobile_settings_quality_data_saver_note">Com a Economia de dados do Android ativada, o YewPlay carrega menos à frente nos dados móveis.</string>
+    <string name="mobile_settings_quality_data_saver_note">Com a Economia de dados do Android ativada, o YewMusic carrega menos à frente nos dados móveis.</string>
     <string name="mobile_settings_caption_style">Estilo</string>
     <string name="mobile_settings_caption_size">Tamanho</string>
     <string name="mobile_settings_caption_position">Distância da parte de baixo</string>
@@ -219,7 +219,7 @@
     <string name="mobile_settings_dearrow_thumbnails">Miniaturas melhores</string>
     <string name="mobile_settings_dearrow_thumbnails_summary">Troca as miniaturas por quadros escolhidos pela comunidade</string>
     <string name="mobile_settings_dearrow_note">O DeArrow recebe os IDs dos vídeos que você vê nas listas.</string>
-    <string name="mobile_settings_advanced_note">A maioria das pessoas nunca precisa mexer aqui. Estas opções mudam como o YewPlay transmite e se conecta.</string>
+    <string name="mobile_settings_advanced_note">A maioria das pessoas nunca precisa mexer aqui. Estas opções mudam como o YewMusic transmite e se conecta.</string>
     <string name="mobile_settings_streaming">Streaming</string>
     <string name="mobile_settings_video_format">Formato de vídeo</string>
     <string name="mobile_settings_buffer">Buffer</string>
@@ -251,7 +251,7 @@
     <string name="mobile_settings_chapter_popup_summary">Mostra o nome de cada capítulo quando ele começa. Toque para ir ao próximo</string>
     <string name="mobile_settings_network">Rede</string>
     <string name="mobile_settings_proxy">Proxy</string>
-    <string name="mobile_settings_proxy_summary">Envia o tráfego do YewPlay por um proxy HTTP ou SOCKS</string>
+    <string name="mobile_settings_proxy_summary">Envia o tráfego do YewMusic por um proxy HTTP ou SOCKS</string>
     <string name="mobile_settings_dns">Como encontrar os servidores do YouTube</string>
     <string name="mobile_settings_dns_ipv4">IPv4 primeiro</string>
     <string name="mobile_settings_dns_ipv4_desc">O padrão. Resolve redes com IPv6 com problema</string>
