@@ -45,6 +45,16 @@
                     android:scaleType="fitXY"
                     android:visibility="gone" />
             </androidx.media3.ui.AspectRatioFrameLayout>
+
+            <!-- YEWMUSIC(player): no modo Música não há vídeo; a capa fica no lugar dele. -->
+            <ImageView
+                android:id="@+id/yew_mini_cover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="false"
+                android:importantForAccessibility="no"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
         </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout

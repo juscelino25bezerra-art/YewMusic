@@ -396,4 +396,7 @@
     <string name="yew_greeting_morning">Bom dia</string>
     <string name="yew_greeting_afternoon">Boa tarde</string>
     <string name="yew_greeting_evening">Boa noite</string>
+    <string name="yew_mode_music">Música</string>
+    <string name="yew_mode_video">Vídeo</string>
+    <string name="yew_mode_switch_desc">Tocar como música ou como vídeo</string>
 </resources>
