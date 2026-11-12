@@ -1314,6 +1314,7 @@ public class MobileBrowseActivity extends MobileActivity
         }
 
         addContinueRow();
+        addLikedRow();
 
         // YEWPLAY(nav): the Library (proposta, p. 15) - Histórico and Downloads first, then the
         // rest of the user's own sections; pinned channels and playlists under their own title.
@@ -1329,6 +1330,23 @@ public class MobileBrowseActivity extends MobileActivity
                 addYouSectionRow(pinned.get(i), i == pinned.size() - 1);
             }
         }
+    }
+
+    /**
+     * YEWMUSIC(library): "Curtidas" no topo da Biblioteca - a playlist de vídeos curtidos da conta
+     * (LL), aberta como qualquer playlist. Só com login: sem conta não há o que curtir.
+     */
+    private void addLikedRow() {
+        if (!com.liskovsoft.youtubeapi.service.YouTubeSignInService.instance().isSigned()) {
+            return;
+        }
+        View row = addYouRow(R.drawable.ic_yew_heart, getString(R.string.yew_library_liked), () -> {
+            Video liked = new Video();
+            liked.playlistId = "LL";
+            liked.title = getString(R.string.yew_library_liked);
+            onVideoClicked(liked);
+        });
+        row.findViewById(R.id.yew_library_row_divider).setVisibility(View.VISIBLE);
     }
 
     /** YEWPLAY(library): how many "Continue de onde parou" cards, at most. */
