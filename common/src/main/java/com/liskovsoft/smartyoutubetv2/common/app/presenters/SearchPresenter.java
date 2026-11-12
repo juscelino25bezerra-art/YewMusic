@@ -79,6 +79,11 @@ public class SearchPresenter extends BasePresenter<SearchView> implements VideoG
         disposeActions();
     }
 
+    /** YEWMUSIC(search): os filtros de tipo da Busca (Músicas, Artistas, Playlists); 0 = tudo. */
+    public void setTypeOptions(int typeOptions) {
+        mTypeOptions = typeOptions;
+    }
+
     @Override
     public void onFinish() {
         super.onFinish();

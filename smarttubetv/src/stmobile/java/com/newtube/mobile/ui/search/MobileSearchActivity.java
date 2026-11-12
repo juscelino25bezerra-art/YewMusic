@@ -161,6 +161,78 @@ public class MobileSearchActivity extends MobileActivity
         mPresenter = SearchPresenter.instance(this);
         mPresenter.setView(this);
         mPresenter.onViewInitialized();
+        bindTypeFilters();
+    }
+
+    // YEWMUSIC(search): filtros de tipo da Busca.
+    private static final int[] TYPE_FILTERS = {
+            0,
+            com.liskovsoft.mediaserviceinterfaces.data.SearchOptions.TYPE_VIDEO,
+            com.liskovsoft.mediaserviceinterfaces.data.SearchOptions.TYPE_CHANNEL,
+            com.liskovsoft.mediaserviceinterfaces.data.SearchOptions.TYPE_PLAYLIST,
+    };
+    private static final int[] TYPE_FILTER_TITLES = {
+            R.string.yew_filter_all,
+            R.string.yew_search_songs,
+            R.string.yew_search_artists,
+            R.string.yew_search_playlists,
+    };
+    private int mTypeFilter;
+
+    private void bindTypeFilters() {
+        android.widget.LinearLayout row = findViewById(R.id.yew_search_filters);
+        if (row == null) {
+            return;
+        }
+        row.removeAllViews();
+        float density = getResources().getDisplayMetrics().density;
+        for (int i = 0; i < TYPE_FILTERS.length; i++) {
+            final int option = TYPE_FILTERS[i];
+            TextView chip = new TextView(this);
+            chip.setText(TYPE_FILTER_TITLES[i]);
+            chip.setGravity(android.view.Gravity.CENTER);
+            chip.setTextSize(14);
+            chip.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.instrument_semibold));
+            chip.setMinHeight(Math.round(36 * density));
+            chip.setPadding(Math.round(16 * density), 0, Math.round(16 * density), 0);
+            android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT, Math.round(36 * density));
+            lp.setMarginEnd(Math.round(8 * density));
+            chip.setLayoutParams(lp);
+            chip.setTag(option);
+            chip.setOnClickListener(v -> onTypeFilterChosen(option));
+            row.addView(chip);
+        }
+        mPresenter.setTypeOptions(mTypeFilter);
+        styleTypeFilters();
+    }
+
+    private void onTypeFilterChosen(int option) {
+        if (mTypeFilter == option) {
+            return;
+        }
+        mTypeFilter = option;
+        mPresenter.setTypeOptions(option);
+        styleTypeFilters();
+        if (mSubmittedQuery != null) {
+            mLastSubmitText = null; // the same words, another filter: not a duplicate submit
+            submitSearch(mSubmittedQuery, "filter");
+        }
+    }
+
+    private void styleTypeFilters() {
+        android.widget.LinearLayout row = findViewById(R.id.yew_search_filters);
+        if (row == null) {
+            return;
+        }
+        for (int i = 0; i < row.getChildCount(); i++) {
+            TextView chip = (TextView) row.getChildAt(i);
+            boolean selected = Integer.valueOf(mTypeFilter).equals(chip.getTag());
+            chip.setBackgroundResource(selected ? R.drawable.bg_yew_segment_on : R.drawable.bg_yew_segment_track);
+            chip.setTextColor(androidx.core.content.ContextCompat.getColor(this,
+                    selected ? R.color.mobile_color_on_inverse_surface : R.color.mobile_color_on_surface));
+            chip.setSelected(selected);
+        }
     }
 
     private void bindViews() {

@@ -399,4 +399,8 @@
     <string name="yew_mode_music">Música</string>
     <string name="yew_mode_video">Vídeo</string>
     <string name="yew_mode_switch_desc">Tocar como música ou como vídeo</string>
+    <string name="yew_search_songs">Músicas</string>
+    <string name="yew_search_artists">Artistas</string>
+    <string name="yew_search_playlists">Playlists</string>
+    <string name="yew_library_liked">Curtidas</string>
 </resources>
