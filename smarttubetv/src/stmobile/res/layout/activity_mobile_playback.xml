@@ -1230,4 +1230,14 @@
 
     </com.newtube.mobile.ui.playback.WatchRootLayout>
 
+    <!-- YEWMUSIC(compose): o player de música (Proposta 2), por cima de tudo no modo Música.
+         O player de vídeo continua embaixo e é quem toca; esta tela só mostra e comanda. -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/yew_music_player"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="false"
+        android:visibility="gone" />
+
 </com.newtube.mobile.ui.playback.PlayerContainerLayout>

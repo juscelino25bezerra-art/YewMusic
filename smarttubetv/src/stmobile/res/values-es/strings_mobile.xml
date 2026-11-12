@@ -434,4 +434,25 @@
     <string name="yew_search_artists">Artistas</string>
     <string name="yew_search_playlists">Listas</string>
     <string name="yew_library_liked">Me gusta</string>
+    <string name="yew_music_now_playing">Reproduciendo</string>
+    <string name="yew_music_minimize">Minimizar el reproductor</string>
+    <string name="yew_music_more">Más opciones</string>
+    <string name="yew_music_like">Me gusta</string>
+    <string name="yew_music_on">activado</string>
+    <string name="yew_music_off">desactivado</string>
+    <string name="yew_music_position">Posición en la canción</string>
+    <string name="yew_music_time_of">%1$s de %2$s</string>
+    <string name="yew_music_shuffle">Aleatorio</string>
+    <string name="yew_music_repeat_one">Repetir esta canción</string>
+    <string name="yew_music_play">Reproducir</string>
+    <string name="yew_music_pause">Pausar</string>
+    <string name="yew_music_next">Siguiente canción</string>
+    <string name="yew_music_previous">Canción anterior</string>
+    <string name="yew_music_up_next">A continuación</string>
+    <string name="yew_music_save">Guardar</string>
+    <string name="yew_music_download">Descargar</string>
+    <string name="yew_music_downloaded">Descargada</string>
+    <string name="yew_music_share">Compartir</string>
+    <string name="yew_music_close">Cerrar</string>
+    <string name="yew_music_up_next_empty">Las próximas canciones aparecen aquí cuando empiece esta.</string>
 </resources>

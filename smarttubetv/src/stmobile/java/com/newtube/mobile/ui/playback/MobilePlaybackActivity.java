@@ -9026,8 +9026,14 @@ public class MobilePlaybackActivity extends MobileActivity
     private TextView mModeMusic;
     private TextView mModeVideo;
     private String mMusicCoverVideoId;
+    /** YEWMUSIC(compose): o player de música em tela cheia (Proposta 2). */
+    private androidx.compose.ui.platform.ComposeView mMusicPlayer;
 
     private void bindMusicMode() {
+        mMusicPlayer = findViewById(R.id.yew_music_player);
+        if (mMusicPlayer != null) {
+            com.newtube.mobile.music.MusicPlayerUi.install(mMusicPlayer, new MusicBridge());
+        }
         mMusicLayer = findViewById(R.id.yew_music_layer);
         mMusicCover = findViewById(R.id.yew_music_cover);
         mMusicCoverBg = findViewById(R.id.yew_music_cover_bg);
@@ -9061,8 +9067,170 @@ public class MobilePlaybackActivity extends MobileActivity
         if (mMusicLayer != null) {
             mMusicLayer.setVisibility(music ? View.VISIBLE : View.GONE);
         }
+        if (mMusicPlayer != null) {
+            mMusicPlayer.setVisibility(music ? View.VISIBLE : View.GONE);
+        }
         styleModeOption(mModeMusic, music);
         styleModeOption(mModeVideo, !music);
+    }
+
+    /**
+     * YEWMUSIC(compose): a ponte da tela de música para este player. Tudo passa pelos mesmos
+     * caminhos dos botões de sempre (presenter, curtir, baixar, salvar), então o comportamento é o
+     * mesmo do modo Vídeo.
+     */
+    private final class MusicBridge implements com.newtube.mobile.music.MusicPlayerBridge {
+        @Override
+        public com.newtube.mobile.music.MusicSnapshot snapshot() {
+            Video video = getVideo();
+            long position = 0;
+            long duration = 0;
+            boolean playing = false;
+            if (mPlayer != null) {
+                position = Math.max(0, mPlayer.getCurrentPosition());
+                long d = mPlayer.getDuration();
+                duration = d == androidx.media3.common.C.TIME_UNSET ? 0 : Math.max(0, d);
+                playing = mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() != Player.STATE_ENDED;
+            }
+            DownloadItem download = currentDownload();
+            int top = 0;
+            int bottom = 0;
+            androidx.core.view.WindowInsetsCompat insets =
+                    androidx.core.view.ViewCompat.getRootWindowInsets(getWindow().getDecorView());
+            if (insets != null) {
+                androidx.core.graphics.Insets bars = insets.getInsets(
+                        androidx.core.view.WindowInsetsCompat.Type.systemBars()
+                                | androidx.core.view.WindowInsetsCompat.Type.displayCutout());
+                top = bars.top;
+                bottom = bars.bottom;
+            }
+            String title = video != null && video.getTitle() != null ? video.getTitle() : "";
+            String artist = video != null && video.getAuthor() != null ? video.getAuthor() : "";
+            return new com.newtube.mobile.music.MusicSnapshot(
+                    video != null ? video.videoId : null, title, artist,
+                    MusicMode.coverUrl(video), MusicMode.fallbackCoverUrl(video),
+                    position, duration, playing,
+                    mWatchLike != null && mWatchLike.isSelected(),
+                    isShuffling(),
+                    PlayerData.instance(MobilePlaybackActivity.this).getPlaybackMode() == PlayerConstants.PLAYBACK_MODE_ONE,
+                    download != null && download.isDone(),
+                    top, bottom);
+        }
+
+        @Override
+        public void togglePlayPause() {
+            MobilePlaybackActivity.this.togglePlayPause();
+        }
+
+        @Override
+        public void next() {
+            if (mPresenter != null) {
+                mPresenter.onNextClicked();
+            }
+        }
+
+        @Override
+        public void previous() {
+            if (mPresenter != null) {
+                mPresenter.onPreviousClicked();
+            }
+        }
+
+        @Override
+        public void seekTo(long positionMs) {
+            if (mExoPlayerController != null) {
+                mExoPlayerController.setPositionMs(positionMs);
+            }
+        }
+
+        @Override
+        public void toggleLike() {
+            if (mWatchLike != null) {
+                mWatchLike.performClick();
+            }
+        }
+
+        @Override
+        public void toggleShuffle() {
+            toggleShuffleMode();
+        }
+
+        @Override
+        public void toggleRepeat() {
+            PlayerData data = PlayerData.instance(MobilePlaybackActivity.this);
+            int mode = data.getPlaybackMode() == PlayerConstants.PLAYBACK_MODE_ONE
+                    ? PlayerConstants.PLAYBACK_MODE_ALL : PlayerConstants.PLAYBACK_MODE_ONE;
+            data.setPlaybackMode(mode);
+            setButtonState(R.id.action_repeat, mode);
+        }
+
+        @Override
+        public void minimize() {
+            getOnBackPressedDispatcher().onBackPressed();
+        }
+
+        @Override
+        public void openMenu() {
+            openPlayerMenu();
+        }
+
+        @Override
+        public void showVideo() {
+            setMusicMode(false);
+        }
+
+        @Override
+        public void save() {
+            if (mWatchSave != null) {
+                mWatchSave.performClick();
+            }
+        }
+
+        @Override
+        public void download() {
+            if (mWatchDownload != null && mWatchDownload.getVisibility() == View.VISIBLE) {
+                mWatchDownload.performClick();
+            }
+        }
+
+        @Override
+        public void share() {
+            if (mWatchShare != null) {
+                mWatchShare.performClick();
+            }
+        }
+
+        @Override
+        public java.util.List<com.newtube.mobile.music.UpNextItem> upNext() {
+            java.util.List<com.newtube.mobile.music.UpNextItem> items = new ArrayList<>();
+            for (Video video : mRelatedVideos) {
+                if (video == null || video.videoId == null) {
+                    continue;
+                }
+                items.add(new com.newtube.mobile.music.UpNextItem(
+                        video.getTitle() != null ? video.getTitle() : "",
+                        video.getAuthor() != null ? video.getAuthor() : "",
+                        MusicMode.fallbackCoverUrl(video)));
+                if (items.size() == 30) {
+                    break;
+                }
+            }
+            return items;
+        }
+
+        @Override
+        public void playUpNext(int index) {
+            int seen = 0;
+            for (Video video : mRelatedVideos) {
+                if (video == null || video.videoId == null) {
+                    continue;
+                }
+                if (seen++ == index) {
+                    onRelatedClicked(video);
+                    return;
+                }
+            }
+        }
     }
 
     private void styleModeOption(TextView option, boolean selected) {
