@@ -345,7 +345,10 @@ public class BrowsePresenter extends BasePresenter<BrowseView> implements Sectio
     }
 
     private void initRowAndGridMapping() {
-        mRowMapping.put(MediaGroup.TYPE_HOME, getContentService().getHomeObserve());
+        // YEWMUSIC(home): o Início é o feed de música do YouTube (Músicas curtidas + prateleiras
+        // de música), não o feed geral de vídeos. Todo o resto que olha para TYPE_HOME (pré-carga
+        // na abertura, ritmo das prateleiras, card destaque) continua valendo.
+        mRowMapping.put(MediaGroup.TYPE_HOME, getContentService().getMusicObserve());
         mRowMapping.put(MediaGroup.TYPE_TRENDING, getContentService().getTrendingObserve());
         mRowMapping.put(MediaGroup.TYPE_KIDS_HOME, getContentService().getKidsHomeObserve());
         mRowMapping.put(MediaGroup.TYPE_SPORTS, getContentService().getSportsObserve());

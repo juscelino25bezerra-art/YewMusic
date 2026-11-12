@@ -133,13 +133,15 @@ public class MobileBrowseActivity extends MobileActivity
      */
     // YEWPLAY(nav): two section destinations; Search and Library (YOU_ITEM_ID) complete the four.
     // History and Downloads live in the Library now (proposta, p. 13).
+    // YEWMUSIC(nav): Início (música), Explorar (Em alta), Busca e Biblioteca; Inscrições vai
+    // para a Biblioteca.
     private static final int[] PREFERRED_SECTION_IDS = {
             MediaGroup.TYPE_HOME,
-            MediaGroup.TYPE_SUBSCRIPTIONS,
+            MediaGroup.TYPE_TRENDING,
     };
     private static final int[] PREFERRED_SECTION_TITLE_RES = {
             R.string.header_home,
-            R.string.header_subscriptions,
+            R.string.header_trending,
     };
 
     private BrowsePresenter mPresenter;
@@ -419,7 +421,7 @@ public class MobileBrowseActivity extends MobileActivity
     }
 
     private static boolean isHomeTabSection(BrowseSection section, List<BrowseSection> navSections) {
-        return section.isEnabled() && !navSections.contains(section)
+        return section.isEnabled() && !navSections.contains(section) && !isVideoOnlyFeed(section.getId())
                 && section.getId() != MediaGroup.TYPE_SETTINGS && section.getId() != MediaGroup.TYPE_SHORTS
                 && section.getId() != MediaGroup.TYPE_HISTORY && section.getId() != VideoDownloads.SECTION_ID
                 && !(section.getData() instanceof Video) && !isPersonalSection(section.getId());
@@ -1182,7 +1184,9 @@ public class MobileBrowseActivity extends MobileActivity
         } else if (mYouShowing) {
             title = getString(R.string.yew_nav_library);
         } else if (home) {
-            title = getString(R.string.yew_nav_home);
+            title = homeGreeting();
+        } else if (mCurrentSectionId == MediaGroup.TYPE_TRENDING) {
+            title = getString(R.string.yew_nav_explore);
         } else {
             title = getCurrentSectionTitle();
         }
@@ -1190,14 +1194,18 @@ public class MobileBrowseActivity extends MobileActivity
         mCastButton.setVisibility(home ? View.VISIBLE : View.GONE);
         mSettingsButton.setVisibility(mYouShowing ? View.VISIBLE : View.GONE);
         boolean downloads = subScreen && isDownloadsSectionShowing();
+        // YEWMUSIC(home): sem outros feeds de música, o Início fica sem a fileira de filtros.
+        boolean homeFilters = false;
         if (home) {
-            mFilterTabs.setTabs(homeTabs());
+            List<FilterTabs.Tab> tabs = homeTabs();
+            homeFilters = tabs.size() > 1;
+            mFilterTabs.setTabs(tabs);
             mFilterTabs.select(mCurrentSectionId);
         } else if (downloads) {
             mFilterTabs.setTabs(downloadsTabs());
             mFilterTabs.select(mDownloadsFilter);
         }
-        mFilterTabs.show(home || downloads);
+        mFilterTabs.show(homeFilters || downloads);
         int lit;
         if (mYouShowing) {
             lit = YOU_ITEM_ID;
@@ -1217,8 +1225,40 @@ public class MobileBrowseActivity extends MobileActivity
      * Personal-content section ids (the user's own stuff). These lead the You list, official-app
      * style; every other non-nav section is a discovery feed and goes under the "Explore" label.
      */
+    /**
+     * YEWMUSIC(home): feeds do YouTube que não são de música (e o próprio feed de música, que já é
+     * o Início). Não viram filtro do Início nem linha da Biblioteca.
+     */
+    private static boolean isVideoOnlyFeed(int sectionId) {
+        switch (sectionId) {
+            case MediaGroup.TYPE_MUSIC:
+            case MediaGroup.TYPE_GAMING:
+            case MediaGroup.TYPE_NEWS:
+            case MediaGroup.TYPE_SPORTS:
+            case MediaGroup.TYPE_KIDS_HOME:
+            case MediaGroup.TYPE_LIVE:
+            case MediaGroup.TYPE_SHORTS:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /** YEWMUSIC(home): saudação do Início conforme a hora do aparelho. */
+    private String homeGreeting() {
+        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
+        if (hour >= 5 && hour < 12) {
+            return getString(R.string.yew_greeting_morning);
+        }
+        if (hour >= 12 && hour < 18) {
+            return getString(R.string.yew_greeting_afternoon);
+        }
+        return getString(R.string.yew_greeting_evening);
+    }
+
     private static boolean isPersonalSection(int sectionId) {
         switch (sectionId) {
+            case MediaGroup.TYPE_SUBSCRIPTIONS:
             case MediaGroup.TYPE_USER_PLAYLISTS:
             case MediaGroup.TYPE_MY_VIDEOS:
             case MediaGroup.TYPE_CHANNEL_UPLOADS:
@@ -1254,6 +1294,7 @@ public class MobileBrowseActivity extends MobileActivity
         for (BrowseSection section : mSections) {
             if (!section.isEnabled()
                     || navSections.contains(section)
+                    || isVideoOnlyFeed(section.getId())
                     || section.getId() == MediaGroup.TYPE_SETTINGS
                     || section.getId() == MediaGroup.TYPE_SHORTS) {
                 continue;
@@ -1374,14 +1415,16 @@ public class MobileBrowseActivity extends MobileActivity
                 return 1;
             case MediaGroup.TYPE_USER_PLAYLISTS:
                 return 2;
-            case MediaGroup.TYPE_CHANNEL_UPLOADS:
+            case MediaGroup.TYPE_SUBSCRIPTIONS: // YEWMUSIC(nav): saiu da barra, fica junto das playlists
                 return 3;
-            case MediaGroup.TYPE_MY_VIDEOS:
+            case MediaGroup.TYPE_CHANNEL_UPLOADS:
                 return 4;
-            case MediaGroup.TYPE_PLAYBACK_QUEUE:
+            case MediaGroup.TYPE_MY_VIDEOS:
                 return 5;
-            default:
+            case MediaGroup.TYPE_PLAYBACK_QUEUE:
                 return 6;
+            default:
+                return 7;
         }
     }
 
@@ -1718,8 +1761,11 @@ public class MobileBrowseActivity extends MobileActivity
         mAdapter.setChannelAvatars(showsChannelAvatars(mCurrentSectionId) ? this::onChannelAvatarClicked : null);
         // YEWPLAY(visual): the large item on Início and its filter tabs, the compact one elsewhere.
         mAdapter.setRowLayout(!isOnHomeDestination());
-        // YEWPLAY(home): the editorial item heads Início's "Tudo" only, not its other filter tabs.
-        mAdapter.setHeroFirst(mCurrentSectionId == MediaGroup.TYPE_HOME && !mYouShowing);
+        // YEWMUSIC(home): o Início de música em capas quadradas, duas por linha, sem o destaque.
+        boolean musicHome = mCurrentSectionId == MediaGroup.TYPE_HOME && !mYouShowing;
+        mAdapter.setMusicTiles(musicHome);
+        mAdapter.setHeroFirst(false);
+        updateGridSpanCount(computeSpanCount());
     }
 
     /** The loading skeleton's avatar circles, where the cards will have avatars. */
@@ -1852,7 +1898,12 @@ public class MobileBrowseActivity extends MobileActivity
     };
 
     private int computeSpanCount() {
-        return com.newtube.mobile.ui.common.MobileGrid.computeSpanCount(this);
+        return musicSpan(com.newtube.mobile.ui.common.MobileGrid.computeSpanCount(this));
+    }
+
+    /** YEWMUSIC(home): as capas do Início ocupam metade da coluna de um vídeo. */
+    private int musicSpan(int videoColumns) {
+        return mAdapter != null && mAdapter.isMusicTiles() ? videoColumns * 2 : videoColumns;
     }
 
     private static int toMenuItemId(int sectionId) {
@@ -2036,7 +2087,7 @@ public class MobileBrowseActivity extends MobileActivity
             BrowseSection section = navSections.get(i);
 
             android.view.MenuItem item = menu.add(Menu.NONE, toMenuItemId(section.getId()), i == 0 ? 0 : i + 1,
-                    section.getId() == MediaGroup.TYPE_HOME ? getString(R.string.yew_nav_home) : section.getTitle());
+                    navTitleFor(section));
 
             int icon = navIconOrResFor(section);
             if (icon > 0) {
@@ -2092,6 +2143,18 @@ public class MobileBrowseActivity extends MobileActivity
         }
     }
 
+    /** YEWMUSIC(nav): Início e Explorar têm nome próprio na barra; o resto usa o da seção. */
+    private CharSequence navTitleFor(BrowseSection section) {
+        switch (section.getId()) {
+            case MediaGroup.TYPE_HOME:
+                return getString(R.string.yew_nav_home);
+            case MediaGroup.TYPE_TRENDING:
+                return getString(R.string.yew_nav_explore);
+            default:
+                return section.getTitle();
+        }
+    }
+
     /** The icon a nav tab shows for this section: its outline/filled pair, else the stock icon. */
     private static int navIconOrResFor(BrowseSection section) {
         int navIcon = navIconFor(section.getId());
@@ -2110,6 +2173,8 @@ public class MobileBrowseActivity extends MobileActivity
                 return R.drawable.ic_nav_home;
             case MediaGroup.TYPE_SUBSCRIPTIONS:
                 return R.drawable.ic_nav_subscriptions;
+            case MediaGroup.TYPE_TRENDING:
+                return R.drawable.ic_nav_explore;
             case MediaGroup.TYPE_HISTORY:
                 return R.drawable.ic_nav_history;
             case VideoDownloads.SECTION_ID:
@@ -2333,7 +2398,7 @@ public class MobileBrowseActivity extends MobileActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        updateGridSpanCount(com.newtube.mobile.ui.common.MobileGrid.computeSpanCount(newConfig));
+        updateGridSpanCount(musicSpan(com.newtube.mobile.ui.common.MobileGrid.computeSpanCount(newConfig)));
     }
 
     // NEWTUBE(ui-mode): a recreated Browse (any config change the manifest doesn't absorb, or

@@ -12,11 +12,11 @@ android {
         // Requiring API 34+ prevents that fallback on a phone with an existing account.
         minSdk = 34
         targetSdk = project.ext.targetSdkVersion
-        testApplicationId = 'com.yewplay.benchmark'
+        testApplicationId = 'com.yewmusic.benchmark'
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
         missingDimensionStrategy 'default', 'stmobile'
         testInstrumentationRunnerArguments['targetPackage'] = rootProject.file('keystore.properties').exists()
-                ? 'com.yewplay' : 'com.yewplay.debug'
+                ? 'com.yewmusic' : 'com.yewmusic.debug'
     }
 
     compileOptions {

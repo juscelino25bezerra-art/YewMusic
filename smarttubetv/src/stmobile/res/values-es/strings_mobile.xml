@@ -423,4 +423,8 @@
     <string name="mobile_about_share_text">YewMusic, un cliente de YouTube para móviles basado en SmartTube: %1$s</string>
     <string name="sabr_vod_option">Preferir SABR aunque haya enlaces (experimental; próximo vídeo)</string>
     <string name="sabr_vod_stopped">Se ha detenido la reproducción SABR experimental. Pulsa reproducir para reintentar o desactiva SABR en Ajustes.</string>
+    <string name="yew_nav_explore">Explorar</string>
+    <string name="yew_greeting_morning">Buenos días</string>
+    <string name="yew_greeting_afternoon">Buenas tardes</string>
+    <string name="yew_greeting_evening">Buenas noches</string>
 </resources>

@@ -2,7 +2,7 @@
 """In-app source benchmark (netbench phase 1).
 
 Opens each (source, video) cell in the side-by-side benchmark build of NewTube
-(com.yewplay.check: its own data, no account) with the source forced through
+(com.yewmusic.check: its own data, no account) with the source forced through
 debug.arc.player_client, lets it play like a user would for --play-s seconds (with the app's own
 auto-seek from debug.arc.bench_seek), then reads the app's NetPath lines and writes one JSON line
 per open: what /player answered, what the loader chose, first frame, how far playback got
@@ -41,7 +41,7 @@ import sys
 import time
 
 SERIAL = None  # --serial or NETBENCH_SERIAL; main() refuses to run without one
-PKG = "com.yewplay.check"
+PKG = "com.yewmusic.check"
 HERE = os.path.dirname(os.path.abspath(__file__))
 GUARD = os.path.join(os.path.dirname(HERE), "device", "guard.sh")
 DEFAULT_DATA = os.path.dirname(HERE)  # tools/netbench

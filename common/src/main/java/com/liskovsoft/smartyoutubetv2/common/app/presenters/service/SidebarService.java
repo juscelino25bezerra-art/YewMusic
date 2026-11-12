@@ -298,7 +298,7 @@ public class SidebarService implements ProfileChangeListener {
             enableSection(sectionId, !Helpers.equalsAny(sectionId, new int[] {
                     MediaGroup.TYPE_NOTIFICATIONS,
                     MediaGroup.TYPE_PLAYBACK_QUEUE,
-                    MediaGroup.TYPE_TRENDING,
+                    // YEWMUSIC(nav): Em alta é a aba Explorar, ligada desde a primeira abertura.
                     MediaGroup.TYPE_BLOCKED_CHANNELS
             }));
         }
@@ -340,6 +340,15 @@ public class SidebarService implements ProfileChangeListener {
 
         // Backward compatibility
         enableSection(MediaGroup.TYPE_SETTINGS, true);
+
+        // YEWMUSIC(nav): instalações feitas antes da aba Explorar guardaram Em alta desligada;
+        // liga uma vez só, e depois vale o que o usuário escolher em Configurações > Abas.
+        android.content.SharedPreferences migrations =
+                mContext.getSharedPreferences("yewmusic_migrations", Context.MODE_PRIVATE);
+        if (!migrations.getBoolean("explore_tab_on", false)) {
+            enableSection(MediaGroup.TYPE_TRENDING, true);
+            migrations.edit().putBoolean("explore_tab_on", true).apply();
+        }
 
         cleanupPinnedItems();
     }

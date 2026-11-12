@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  YEWMUSIC(home): o bloco de música do Início (mockup "Feito para você") - capa quadrada com
+  cantos de 12dp, título em até 2 linhas e só o artista embaixo. Mesmos ids de item_video_card,
+  então VideoCardAdapter.VideoViewHolder o preenche igual; a tag "tile" deixa a linha de baixo só
+  com o artista. Duas colunas no celular (MobileBrowseActivity.computeSpanCount).
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/video_card_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="14dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:tag="tile">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/video_thumbnail_frame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardBackgroundColor="@color/mobile_color_placeholder"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/video_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/video_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_video_badge"
+            android:fontFamily="@font/instrument_semibold"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textColor="@android:color/white"
+            android:textSize="11.5sp"
+            android:visibility="gone"
+            tools:text="3:37"
+            tools:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/video_watch_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_gravity="bottom"
+            android:max="100"
+            android:progressBackgroundTint="@color/mobile_color_progress_track"
+            android:progressTint="@color/mobile_color_progress"
+            android:visibility="gone" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/video_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/instrument_semibold"
+        android:maxLines="2"
+        android:textColor="@color/mobile_color_on_surface"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@id/video_overflow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/video_thumbnail_frame"
+        tools:text="Maré Baixa" />
+
+    <TextView
+        android:id="@+id/video_meta"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/mobile_color_on_surface_secondary"
+        android:textSize="12.5sp"
+        app:layout_constraintEnd_toStartOf="@id/video_overflow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/video_title"
+        tools:text="Lua Serena" />
+
+    <ImageButton
+        android:id="@+id/video_overflow"
+        android:layout_width="32dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="4dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/mobile_player_more"
+        android:paddingVertical="10dp"
+        android:paddingStart="10dp"
+        android:src="@drawable/ic_mobile_more_vert"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/video_thumbnail_frame" />
+</androidx.constraintlayout.widget.ConstraintLayout>
