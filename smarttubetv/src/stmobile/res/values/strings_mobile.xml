@@ -532,4 +532,14 @@
     <string name="yew_music_share">Share</string>
     <string name="yew_music_close">Close</string>
     <string name="yew_music_up_next_empty">The next songs show up here once this one starts.</string>
+    <string name="yew_home_for_you">For you</string>
+    <string name="yew_home_listen_again">Listen again</string>
+    <string name="yew_mood_relax">Relax</string>
+    <string name="yew_mood_relax_query">relaxing music</string>
+    <string name="yew_mood_energy">Energy</string>
+    <string name="yew_mood_energy_query">upbeat music</string>
+    <string name="yew_mood_focus">Focus</string>
+    <string name="yew_mood_focus_query">music for focus</string>
+    <string name="yew_mood_workout">Workout</string>
+    <string name="yew_mood_workout_query">workout music</string>
 </resources>

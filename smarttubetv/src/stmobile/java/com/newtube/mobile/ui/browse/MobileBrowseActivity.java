@@ -276,6 +276,7 @@ public class MobileBrowseActivity extends MobileActivity
 
         bindViews();
         setupContentGrid();
+        setupMusicHome();
         setupBottomNav();
         setupYouPanel();
         setupErrorAction();
@@ -1155,7 +1156,101 @@ public class MobileBrowseActivity extends MobileActivity
      * top bar: a section opened from a You row - one without a bottom-nav tab of its own - is a
      * You sub-screen with a back arrow and its name.
      */
+    // ---------------------------------------------------------------------------------
+    // YEWMUSIC(compose): o Início da Proposta 2
+    // ---------------------------------------------------------------------------------
+
+    private androidx.compose.ui.platform.ComposeView mMusicHome;
+    private final com.newtube.mobile.music.MusicHomeState mMusicHomeState = new com.newtube.mobile.music.MusicHomeState();
+    private int mMusicHomeNearEndCount = -1;
+
+    private void setupMusicHome() {
+        mMusicHome = findViewById(R.id.yew_music_home);
+        if (mMusicHome == null) {
+            return;
+        }
+        com.newtube.mobile.music.MusicHomeUi.install(mMusicHome, mMusicHomeState, new com.newtube.mobile.music.MusicHomeBridge() {
+            @Override
+            public void open(@NonNull Video video) {
+                onVideoClicked(video);
+            }
+
+            @Override
+            public void menu(@NonNull Video video) {
+                onVideoLongClicked(video);
+            }
+
+            @NonNull
+            @Override
+            public List<Video> recent() {
+                return recentlyPlayed();
+            }
+
+            @Override
+            public void onNearEnd() {
+                // Once per list size, like the grid's own near-end report.
+                if (mPresenter == null || mCurrentVideos.isEmpty() || mCurrentVideos.size() == mMusicHomeNearEndCount) {
+                    return;
+                }
+                mMusicHomeNearEndCount = mCurrentVideos.size();
+                mPresenter.onScrollNearEnd(mCurrentVideos.size());
+                mPresenter.onScrollEnd(mCurrentVideos.get(mCurrentVideos.size() - 1));
+            }
+
+            @Override
+            public void mood(@NonNull String query) {
+                com.liskovsoft.smartyoutubetv2.common.app.presenters.SearchPresenter.instance(MobileBrowseActivity.this).startSearch(query);
+            }
+
+            @Override
+            public int bottomPaddingPx() {
+                return mContentGrid != null ? mContentGrid.getPaddingBottom() : 0;
+            }
+        });
+        mAdapter.setListListener(list -> {
+            mMusicHomeState.setVideos(list);
+            refreshMusicHome();
+        });
+    }
+
+    /** O Início em Compose aparece só no Início, fora da Biblioteca, e só quando há conteúdo. */
+    private void refreshMusicHome() {
+        if (mMusicHome == null) {
+            return;
+        }
+        boolean show = mCurrentSectionId == MediaGroup.TYPE_HOME && !mYouShowing && !mSectionFromYou
+                && !mAdapter.getCurrentList().isEmpty();
+        mMusicHome.setVisibility(show ? View.VISIBLE : View.GONE);
+        // The grid underneath keeps the feed; only one of them is read out by TalkBack.
+        mContentSwipe.setImportantForAccessibility(show
+                ? View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS : View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+    }
+
+    /** "Ouvir de novo": as últimas músicas tocadas, da mais recente para a mais antiga. */
+    private List<Video> recentlyPlayed() {
+        List<Video> result = new ArrayList<>();
+        com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoStateService service =
+                com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoStateService.instance(this);
+        if (service == null) {
+            return result;
+        }
+        List<com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoStateService.State> states =
+                new ArrayList<>(service.getStates());
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (int i = states.size() - 1; i >= 0 && result.size() < 6; i--) {
+            com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoStateService.State state = states.get(i);
+            Video video = state != null ? state.video : null;
+            if (video == null || video.videoId == null || video.isLive || !seen.add(video.videoId)
+                    || video.getTitle() == null || video.getTitle().length() == 0) {
+                continue;
+            }
+            result.add(video);
+        }
+        return result;
+    }
+
     private void onYouPanelToggled() {
+        refreshMusicHome();
         int a11y = mYouShowing
                 ? View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS : View.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
         mContentSwipe.setImportantForAccessibility(a11y);
@@ -1782,6 +1877,7 @@ public class MobileBrowseActivity extends MobileActivity
         // YEWMUSIC(home): o Início de música em capas quadradas, duas por linha, sem o destaque.
         boolean musicHome = mCurrentSectionId == MediaGroup.TYPE_HOME && !mYouShowing;
         mAdapter.setMusicTiles(musicHome);
+        refreshMusicHome();
         mAdapter.setHeroFirst(false);
         updateGridSpanCount(computeSpanCount());
     }

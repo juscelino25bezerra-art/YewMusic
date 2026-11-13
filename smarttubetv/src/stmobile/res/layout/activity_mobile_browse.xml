@@ -138,6 +138,20 @@
 
     </com.newtube.mobile.ui.common.HapticSwipeRefreshLayout>
 
+    <!-- YEWMUSIC(compose): o Início da Proposta 2, por cima da grade, só no Início e só com
+         conteúdo. A grade continua embaixo recebendo o feed; carregando e erro são os dela. -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/yew_music_home"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mobile_filter_scroll" />
+
     <include
         layout="@layout/mobile_feed_skeleton"
         android:layout_width="0dp"
