@@ -79,6 +79,13 @@ interface MusicHomeBridge {
 class MusicHomeState {
     internal var videos by mutableStateOf<List<Video>>(emptyList())
 
+    /** Explorar usa a mesma tela, sem os humores e sem Ouvir de novo. */
+    internal var explore by mutableStateOf(false)
+
+    fun setExplore(value: Boolean) {
+        explore = value
+    }
+
     fun setVideos(list: List<Video>) {
         videos = ArrayList(list)
     }
@@ -120,7 +127,8 @@ private fun shelvesOf(videos: List<Video>): List<Shelf> {
 fun MusicHomeScreen(state: MusicHomeState, bridge: MusicHomeBridge) {
     val videos = state.videos
     val shelves = remember(videos) { shelvesOf(videos) }
-    val recent = remember(videos) { bridge.recent().take(6) }
+    val explore = state.explore
+    val recent = remember(videos, explore) { if (explore) emptyList() else bridge.recent().take(6) }
     val listState = rememberLazyListState()
     val density = LocalDensity.current
     val bottom = with(density) { bridge.bottomPaddingPx().toDp() }
@@ -133,8 +141,13 @@ fun MusicHomeScreen(state: MusicHomeState, bridge: MusicHomeBridge) {
     }
 
     val forYou = stringResource(R.string.yew_home_for_you)
-    LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(bottom = bottom + 24.dp)) {
-        item(key = "moods") { MoodChips(bridge) }
+    val homeTitle = stringResource(R.string.header_home)
+    LazyColumn(
+        Modifier.fillMaxSize().background(colorResource(R.color.mobile_color_background)),
+        state = listState,
+        contentPadding = PaddingValues(bottom = bottom + 24.dp),
+    ) {
+        if (!explore) item(key = "moods") { MoodChips(bridge) }
         if (recent.isNotEmpty()) {
             item(key = "recent") {
                 Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 22.dp)) {
@@ -151,7 +164,7 @@ fun MusicHomeScreen(state: MusicHomeState, bridge: MusicHomeBridge) {
         }
         items(shelves, key = { it.key }) { shelf ->
             Column(Modifier.padding(top = 22.dp)) {
-                Box(Modifier.padding(horizontal = 20.dp)) { ShelfTitle(shelf.title?.takeIf { it.isNotBlank() } ?: forYou) }
+                Box(Modifier.padding(horizontal = 20.dp)) { ShelfTitle(shelf.title?.takeIf { it.isNotBlank() && it != homeTitle } ?: forYou) }
                 Spacer(Modifier.height(12.dp))
                 LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     items(shelf.videos, key = { System.identityHashCode(it) }) { video -> ShelfCard(video, bridge) }

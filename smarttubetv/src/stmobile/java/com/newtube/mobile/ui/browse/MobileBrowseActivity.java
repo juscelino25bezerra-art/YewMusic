@@ -1218,8 +1218,10 @@ public class MobileBrowseActivity extends MobileActivity
         if (mMusicHome == null) {
             return;
         }
-        boolean show = mCurrentSectionId == MediaGroup.TYPE_HOME && !mYouShowing && !mSectionFromYou
+        boolean explore = mCurrentSectionId == MediaGroup.TYPE_TRENDING;
+        boolean show = (mCurrentSectionId == MediaGroup.TYPE_HOME || explore) && !mYouShowing && !mSectionFromYou
                 && !mAdapter.getCurrentList().isEmpty();
+        mMusicHomeState.setExplore(explore);
         mMusicHome.setVisibility(show ? View.VISIBLE : View.GONE);
         // The grid underneath keeps the feed; only one of them is read out by TalkBack.
         mContentSwipe.setImportantForAccessibility(show
@@ -2200,7 +2202,8 @@ public class MobileBrowseActivity extends MobileActivity
         for (int i = 0; i < navSections.size(); i++) {
             BrowseSection section = navSections.get(i);
 
-            android.view.MenuItem item = menu.add(Menu.NONE, toMenuItemId(section.getId()), i == 0 ? 0 : i + 1,
+            // YEWMUSIC(nav): Início, Explorar, Busca, Biblioteca (Proposta 2).
+            android.view.MenuItem item = menu.add(Menu.NONE, toMenuItemId(section.getId()), i,
                     navTitleFor(section));
 
             int icon = navIconOrResFor(section);
@@ -2208,7 +2211,7 @@ public class MobileBrowseActivity extends MobileActivity
                 item.setIcon(icon);
             }
         }
-        menu.add(Menu.NONE, SEARCH_ITEM_ID, 1, R.string.yew_nav_search).setIcon(R.drawable.ic_nav_search);
+        menu.add(Menu.NONE, SEARCH_ITEM_ID, navSections.size(), R.string.yew_nav_search).setIcon(R.drawable.ic_nav_search);
 
         // The Library (the old You tab) always sits last: history, downloads, playlists, account.
         menu.add(Menu.NONE, YOU_ITEM_ID, navSections.size() + 1, R.string.yew_nav_library)

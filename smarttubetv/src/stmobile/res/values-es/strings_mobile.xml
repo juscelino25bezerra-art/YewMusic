@@ -13,7 +13,7 @@
 
     <!-- The search field's hint (was the Leanback sample's search_hint in smarttubetv/src/main,
          which has no locale folders; now a phone string so Weblate offers it). -->
-    <string name="mobile_search_hint">Buscar vídeos</string>
+    <string name="mobile_search_hint">Buscar canciones, artistas y álbumes</string>
 
     <!-- Signed-out empty states -->
     <string name="mobile_empty_signin_section">Inicia sesión para ver %1$s</string>
