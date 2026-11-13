@@ -79,6 +79,13 @@ interface MusicHomeBridge {
 class MusicHomeState {
     internal var videos by mutableStateOf<List<Video>>(emptyList())
 
+    /** Explorar usa a mesma tela, sem os humores e sem Ouvir de novo. */
+    internal var explore by mutableStateOf(false)
+
+    fun setExplore(value: Boolean) {
+        explore = value
+    }
+
     fun setVideos(list: List<Video>) {
         videos = ArrayList(list)
     }
@@ -120,7 +127,8 @@ private fun shelvesOf(videos: List<Video>): List<Shelf> {
 fun MusicHomeScreen(state: MusicHomeState, bridge: MusicHomeBridge) {
     val videos = state.videos
     val shelves = remember(videos) { shelvesOf(videos) }
-    val recent = remember(videos) { bridge.recent().take(6) }
+    val explore = state.explore
+    val recent = remember(videos, explore) { if (explore) emptyList() else bridge.recent().take(6) }
     val listState = rememberLazyListState()
     val density = LocalDensity.current
     val bottom = with(density) { bridge.bottomPaddingPx().toDp() }
@@ -133,8 +141,13 @@ fun MusicHomeScreen(state: MusicHomeState, bridge: MusicHomeBridge) {
     }
 
     val forYou = stringResource(R.string.yew_home_for_you)
-    LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(bottom = bottom + 24.dp)) {
-        item(key = "moods") { MoodChips(bridge) }
+    val homeTitle = stringResource(R.string.header_home)
+    LazyColumn(
+        Modifier.fillMaxSize().background(themeColor(R.attr.newtubeColorBackground)),
+        state = listState,
+        contentPadding = PaddingValues(bottom = bottom + 24.dp),
+    ) {
+        if (!explore) item(key = "moods") { MoodChips(bridge) }
         if (recent.isNotEmpty()) {
             item(key = "recent") {
                 Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 22.dp)) {
@@ -151,7 +164,7 @@ fun MusicHomeScreen(state: MusicHomeState, bridge: MusicHomeBridge) {
         }
         items(shelves, key = { it.key }) { shelf ->
             Column(Modifier.padding(top = 22.dp)) {
-                Box(Modifier.padding(horizontal = 20.dp)) { ShelfTitle(shelf.title?.takeIf { it.isNotBlank() } ?: forYou) }
+                Box(Modifier.padding(horizontal = 20.dp)) { ShelfTitle(shelf.title?.takeIf { it.isNotBlank() && it != homeTitle } ?: forYou) }
                 Spacer(Modifier.height(12.dp))
                 LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     items(shelf.videos, key = { System.identityHashCode(it) }) { video -> ShelfCard(video, bridge) }
@@ -173,7 +186,7 @@ private fun MoodChips(bridge: MusicHomeBridge) {
     LazyRow(contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         items(moods, key = { it.first }) { (label, query) ->
             val selected = query == null
-            val bg = if (selected) colorResource(R.color.mobile_color_inverse_surface) else colorResource(R.color.mobile_color_card)
+            val bg = if (selected) colorResource(R.color.mobile_color_inverse_surface) else themeColor(R.attr.newtubeColorCard)
             val fg = if (selected) colorResource(R.color.mobile_color_on_inverse_surface) else colorResource(R.color.mobile_color_on_surface)
             Box(
                 Modifier
@@ -210,7 +223,7 @@ private fun RecentTile(video: Video, bridge: MusicHomeBridge, modifier: Modifier
         modifier
             .heightIn(min = 60.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(colorResource(R.color.mobile_color_card))
+            .background(themeColor(R.attr.newtubeColorCard))
             .combinedClickable(role = Role.Button, onLongClickLabel = more, onLongClick = { bridge.menu(video) }) { bridge.open(video) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -266,4 +279,16 @@ private fun rememberThumb(video: Video, sizePx: Int): Bitmap? {
         onDispose { active = false }
     }
     return bitmap
+}
+
+/** A cor de um atributo do tema do app (assim o fundo preto puro, quando ligado, também vale aqui). */
+@Composable
+private fun themeColor(attr: Int): Color {
+    val context = LocalContext.current
+    return remember(context, attr) {
+        val values = context.obtainStyledAttributes(intArrayOf(attr))
+        val color = values.getColor(0, 0)
+        values.recycle()
+        Color(color)
+    }
 }

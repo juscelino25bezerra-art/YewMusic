@@ -344,12 +344,17 @@ public class BrowsePresenter extends BasePresenter<BrowseView> implements Sectio
         }
     }
 
+    /** YEWMUSIC(nav): o canal "Música" do YouTube. */
+    private static final String YOUTUBE_MUSIC_CHANNEL_ID = "UC-9-kyTW8ZkZNDHQJ6FgpwQ";
+
     private void initRowAndGridMapping() {
         // YEWMUSIC(home): o Início é o feed de música do YouTube (Músicas curtidas + prateleiras
         // de música), não o feed geral de vídeos. Todo o resto que olha para TYPE_HOME (pré-carga
         // na abertura, ritmo das prateleiras, card destaque) continua valendo.
         mRowMapping.put(MediaGroup.TYPE_HOME, getContentService().getMusicObserve());
-        mRowMapping.put(MediaGroup.TYPE_TRENDING, getContentService().getTrendingObserve());
+        // YEWMUSIC(nav): a aba Explorar (seção Em alta) mostra o canal Música do YouTube - paradas,
+        // lançamentos e playlists por gênero. O Em alta da TV vem vazio sem login.
+        mRowMapping.put(MediaGroup.TYPE_TRENDING, getContentService().getChannelObserve(YOUTUBE_MUSIC_CHANNEL_ID));
         mRowMapping.put(MediaGroup.TYPE_KIDS_HOME, getContentService().getKidsHomeObserve());
         mRowMapping.put(MediaGroup.TYPE_SPORTS, getContentService().getSportsObserve());
         mRowMapping.put(MediaGroup.TYPE_LIVE, getContentService().getLiveObserve());

@@ -9101,8 +9101,14 @@ public class MobilePlaybackActivity extends MobileActivity
                 androidx.core.graphics.Insets bars = insets.getInsets(
                         androidx.core.view.WindowInsetsCompat.Type.systemBars()
                                 | androidx.core.view.WindowInsetsCompat.Type.displayCutout());
-                top = bars.top;
-                bottom = bars.bottom;
+                // Only the part of the bars that actually overlaps this view: the container may
+                // already sit below the status bar, and padding for it again left a big gap.
+                int[] at = new int[2];
+                View host = mMusicPlayer != null ? mMusicPlayer : getWindow().getDecorView();
+                host.getLocationOnScreen(at);
+                int screenHeight = getWindow().getDecorView().getHeight();
+                top = Math.max(0, bars.top - at[1]);
+                bottom = Math.max(0, bars.bottom - Math.max(0, screenHeight - (at[1] + host.getHeight())));
             }
             String title = video != null && video.getTitle() != null ? video.getTitle() : "";
             String artist = video != null && video.getAuthor() != null ? video.getAuthor() : "";

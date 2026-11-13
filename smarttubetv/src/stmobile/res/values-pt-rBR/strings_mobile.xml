@@ -101,7 +101,7 @@
     <string name="mobile_dialog_back">Voltar</string>
     <string name="mobile_dialog_unavailable">Ainda não disponível no celular.</string>
     <string name="mobile_back">Voltar</string>
-    <string name="mobile_search_hint">Pesquisar vídeos</string>
+    <string name="mobile_search_hint">Buscar músicas, artistas e álbuns</string>
     <string name="mobile_search_button">Pesquisar</string>
     <string name="mobile_search_voice">Pesquisa por voz</string>
     <string name="mobile_search_insert">Refinar esta pesquisa</string>
@@ -434,4 +434,10 @@
     <string name="yew_mood_focus_query">músicas para concentrar</string>
     <string name="yew_mood_workout">Treino</string>
     <string name="yew_mood_workout_query">músicas para treinar</string>
+    <string name="yew_library_liked_desc">Suas músicas curtidas</string>
+    <string name="yew_library_downloads">Baixadas</string>
+    <string name="yew_library_downloads_desc">Tocam sem internet</string>
+    <string name="yew_library_playlists">Playlists</string>
+    <string name="yew_library_following">Artistas que você segue</string>
+    <string name="yew_library_history">Tocadas recentemente</string>
 </resources>
