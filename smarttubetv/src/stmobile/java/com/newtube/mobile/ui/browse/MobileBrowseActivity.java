@@ -1392,6 +1392,9 @@ public class MobileBrowseActivity extends MobileActivity
             if (!section.isEnabled()
                     || navSections.contains(section)
                     || isVideoOnlyFeed(section.getId())
+                    || section.getId() == VideoDownloads.SECTION_ID      // YEWMUSIC(library): the card
+                    || section.getId() == MediaGroup.TYPE_MY_VIDEOS       // video-only
+                    || section.getId() == MediaGroup.TYPE_CHANNEL_UPLOADS // video-only
                     || section.getId() == MediaGroup.TYPE_SETTINGS
                     || section.getId() == MediaGroup.TYPE_SHORTS) {
                 continue;
@@ -1410,8 +1413,8 @@ public class MobileBrowseActivity extends MobileActivity
             personal.add(section);
         }
 
+        addLibraryCards();
         addContinueRow();
-        addLikedRow();
 
         // YEWPLAY(nav): the Library (proposta, p. 15) - Histórico and Downloads first, then the
         // rest of the user's own sections; pinned channels and playlists under their own title.
@@ -1433,6 +1436,51 @@ public class MobileBrowseActivity extends MobileActivity
      * YEWMUSIC(library): "Curtidas" no topo da Biblioteca - a playlist de vídeos curtidos da conta
      * (LL), aberta como qualquer playlist. Só com login: sem conta não há o que curtir.
      */
+    /**
+     * YEWMUSIC(library): Curtidas e Baixadas em cartões no topo (Proposta 2). Curtidas só com login;
+     * sem conta, Baixadas ocupa a linha sozinha.
+     */
+    private void addLibraryCards() {
+        View cards = LayoutInflater.from(this).inflate(R.layout.item_yew_library_cards, mYouRows, false);
+        View liked = cards.findViewById(R.id.yew_card_liked);
+        if (com.liskovsoft.youtubeapi.service.YouTubeSignInService.instance().isSigned()) {
+            liked.setOnClickListener(v -> {
+                Video playlist = new Video();
+                playlist.playlistId = "LL";
+                playlist.title = getString(R.string.yew_library_liked);
+                onVideoClicked(playlist);
+            });
+        } else {
+            liked.setVisibility(View.GONE);
+        }
+        cards.findViewById(R.id.yew_card_downloads).setOnClickListener(v -> {
+            mSectionFromYou = true;
+            hideYouPanel();
+            onSectionChosen(VideoDownloads.SECTION_ID);
+            onYouPanelToggled();
+        });
+        int count = DownloadRegistry.instance(this).itemsNewestFirst().size();
+        if (count > 0) {
+            TextView desc = cards.findViewById(R.id.yew_card_downloads_desc);
+            desc.setText(getResources().getQuantityString(R.plurals.yew_library_items, count, count));
+        }
+        mYouRows.addView(cards);
+    }
+
+    /** YEWMUSIC(library): nomes de música para as linhas que vêm do YouTube com nome de vídeo. */
+    private CharSequence libraryTitle(BrowseSection section) {
+        switch (section.getId()) {
+            case MediaGroup.TYPE_USER_PLAYLISTS:
+                return getString(R.string.yew_library_playlists);
+            case MediaGroup.TYPE_SUBSCRIPTIONS:
+                return getString(R.string.yew_library_following);
+            case MediaGroup.TYPE_HISTORY:
+                return getString(R.string.yew_library_history);
+            default:
+                return section.getTitle();
+        }
+    }
+
     private void addLikedRow() {
         if (!com.liskovsoft.youtubeapi.service.YouTubeSignInService.instance().isSigned()) {
             return;
@@ -1547,7 +1595,7 @@ public class MobileBrowseActivity extends MobileActivity
         int sectionId = section.getId();
         int icon = sectionId == MediaGroup.TYPE_HISTORY ? R.drawable.ic_nav_history_outline
                 : sectionId == VideoDownloads.SECTION_ID ? R.drawable.ic_nav_downloads_outline : section.getResId();
-        View row = addYouRow(icon, section.getTitle(), () -> {
+        View row = addYouRow(icon, libraryTitle(section), () -> {
             mSectionFromYou = true;
             hideYouPanel();
             onSectionChosen(sectionId);

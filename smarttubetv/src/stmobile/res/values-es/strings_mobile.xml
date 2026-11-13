@@ -465,4 +465,10 @@
     <string name="yew_mood_focus_query">música para concentrarse</string>
     <string name="yew_mood_workout">Entrenamiento</string>
     <string name="yew_mood_workout_query">música para entrenar</string>
+    <string name="yew_library_liked_desc">Tus canciones favoritas</string>
+    <string name="yew_library_downloads">Descargadas</string>
+    <string name="yew_library_downloads_desc">Suenan sin internet</string>
+    <string name="yew_library_playlists">Listas</string>
+    <string name="yew_library_following">Artistas que sigues</string>
+    <string name="yew_library_history">Escuchadas recientemente</string>
 </resources>

@@ -542,4 +542,10 @@
     <string name="yew_mood_focus_query">music for focus</string>
     <string name="yew_mood_workout">Workout</string>
     <string name="yew_mood_workout_query">workout music</string>
+    <string name="yew_library_liked_desc">Your liked songs</string>
+    <string name="yew_library_downloads">Downloaded</string>
+    <string name="yew_library_downloads_desc">Play without internet</string>
+    <string name="yew_library_playlists">Playlists</string>
+    <string name="yew_library_following">Artists you follow</string>
+    <string name="yew_library_history">Recently played</string>
 </resources>
