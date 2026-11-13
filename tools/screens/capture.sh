@@ -93,7 +93,7 @@ shot 01_inicio 30
 adb shell input swipe 540 1800 540 900 900; shot 01b_inicio_rolado 3
 tap_text "Explorar" last; shot 02_explorar 8
 tap_text "Biblioteca" last; shot 03_biblioteca 4
-tap_text "Downloads"; shot 03b_downloads 4
+tap_text "Baixadas"; shot 03b_downloads 4
 adb shell input keyevent KEYCODE_BACK; sleep 2
 tap_desc "Configurações"; shot 04_configuracoes 5
 adb shell input swipe 540 1900 540 700 900; shot 04b_configuracoes_baixo 3
