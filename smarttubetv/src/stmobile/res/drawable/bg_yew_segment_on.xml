@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- YEWMUSIC(player): a opção escolhida no seletor Música | Vídeo. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="17dp" />
+    <solid android:color="@color/mobile_color_inverse_surface" />
+</shape>

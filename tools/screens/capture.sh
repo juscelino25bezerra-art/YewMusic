@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Capturas das telas do YewPlay num emulador (workflow yewplay-telas.yml).
+# Capturas das telas do YewMusic num emulador (workflow yewmusic-telas.yml).
 # Navega pelo texto dos botões (uiautomator), não por coordenadas, e salva PNGs em build/screens.
 # Nunca falha o job por uma tela que não abriu: a captura que faltar já diz o que houve.
 set -u
-PKG=com.yewplay.debug  # o build de debug tem o sufixo .debug
+PKG=com.yewmusic.debug  # o build de debug tem o sufixo .debug
 DIR=smarttubetv/build/outputs/renamed_apks/stmobileDebug
 APK=$(ls "$DIR"/*universal*.apk 2>/dev/null | head -1)
 [ -z "$APK" ] && APK=$(ls "$DIR"/*.apk | head -1)
@@ -90,9 +90,8 @@ adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS >/dev/null 2>&1
 adb shell cmd uimode night yes
 launch
 shot 01_inicio 30
-tap_text "Música"; shot 01b_inicio_musica 8
-tap_text "Tudo"; sleep 3
-tap_text "Inscrições" last; shot 02_inscricoes 8
+adb shell input swipe 540 1800 540 900 900; shot 01b_inicio_rolado 3
+tap_text "Explorar" last; shot 02_explorar 8
 tap_text "Biblioteca" last; shot 03_biblioteca 4
 tap_text "Downloads"; shot 03b_downloads 4
 adb shell input keyevent KEYCODE_BACK; sleep 2

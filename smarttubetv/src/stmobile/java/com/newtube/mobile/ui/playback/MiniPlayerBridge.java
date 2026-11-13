@@ -88,6 +88,27 @@ public final class MiniPlayerBridge {
             subtitle.setText(author != null ? author : "");
             subtitle.setVisibility(author != null && author.length() > 0 ? View.VISIBLE : View.GONE);
         }
+        bindRowCover(card, video);
+    }
+
+    /** YEWMUSIC(player): no modo Música a capa cobre o vídeo (que não é decodificado) no mini. */
+    private static void bindRowCover(View card, @Nullable Video video) {
+        android.widget.ImageView cover = card.findViewById(R.id.yew_mini_cover);
+        if (cover == null) {
+            return;
+        }
+        android.content.Context context = card.getContext();
+        if (video == null || !MusicMode.isOn(context)) {
+            cover.setVisibility(View.GONE);
+            cover.setTag(null);
+            return;
+        }
+        cover.setVisibility(View.VISIBLE);
+        String url = MusicMode.fallbackCoverUrl(video);
+        if (url != null && !url.equals(cover.getTag())) {
+            cover.setTag(url);
+            com.bumptech.glide.Glide.with(context.getApplicationContext()).load(url).into(cover);
+        }
     }
 
     /**

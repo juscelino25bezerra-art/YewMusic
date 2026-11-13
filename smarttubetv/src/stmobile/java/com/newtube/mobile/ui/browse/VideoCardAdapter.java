@@ -42,6 +42,8 @@ public class VideoCardAdapter extends ListAdapter<Video, RecyclerView.ViewHolder
     private static final int VIEW_TYPE_VIDEO_ROW = 2;
     /** YEWPLAY(home): the first video of Início's "Tudo", large and with its text over the image. */
     private static final int VIEW_TYPE_VIDEO_HERO = 3;
+    /** YEWMUSIC(home): capa quadrada do Início de música (item_music_tile). */
+    private static final int VIEW_TYPE_MUSIC_TILE = 4;
 
     public interface OnVideoClickListener {
         void onVideoClick(Video video);
@@ -64,6 +66,7 @@ public class VideoCardAdapter extends ListAdapter<Video, RecyclerView.ViewHolder
     private final ChannelAvatars.Listener mAvatarListener = this::onAvatarsChanged;
     private boolean mRowLayout;
     private boolean mHeroFirst;
+    private boolean mMusicTiles;
 
     public VideoCardAdapter(OnVideoClickListener clickListener) {
         this(clickListener, null);
@@ -99,6 +102,9 @@ public class VideoCardAdapter extends ListAdapter<Video, RecyclerView.ViewHolder
         Video item = getItem(position);
         if (item.isChannel() && !item.isPlaylistAsChannel()) {
             return VIEW_TYPE_CHANNEL;
+        }
+        if (mMusicTiles) {
+            return VIEW_TYPE_MUSIC_TILE;
         }
         if (mHeroFirst && !mRowLayout && position == 0 && item.videoId != null) {
             return VIEW_TYPE_VIDEO_HERO;
@@ -166,6 +172,21 @@ public class VideoCardAdapter extends ListAdapter<Video, RecyclerView.ViewHolder
      * YEWPLAY(home): the editorial item (proposta, p. 12) - Início's first video spans the width,
      * taller, with its title and meta over the image. Only on Início's "Tudo", never in the lists.
      */
+    /** YEWMUSIC(home): o Início em capas quadradas, duas por linha. */
+    public void setMusicTiles(boolean tiles) {
+        if (mMusicTiles == tiles) {
+            return;
+        }
+        mMusicTiles = tiles;
+        if (getItemCount() > 0) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public boolean isMusicTiles() {
+        return mMusicTiles;
+    }
+
     public void setHeroFirst(boolean hero) {
         if (mHeroFirst == hero) {
             return;
@@ -183,7 +204,8 @@ public class VideoCardAdapter extends ListAdapter<Video, RecyclerView.ViewHolder
         if (viewType == VIEW_TYPE_CHANNEL) {
             return new ChannelViewHolder(inflater.inflate(R.layout.item_mobile_channel_card, parent, false), mClickListener);
         }
-        int layout = viewType == VIEW_TYPE_VIDEO_ROW ? R.layout.item_video_card_row
+        int layout = viewType == VIEW_TYPE_MUSIC_TILE ? R.layout.item_music_tile
+                : viewType == VIEW_TYPE_VIDEO_ROW ? R.layout.item_video_card_row
                 : viewType == VIEW_TYPE_VIDEO_HERO ? R.layout.item_video_card_hero : R.layout.item_video_card;
         return new VideoViewHolder(inflater.inflate(layout, parent, false), mClickListener);
     }
@@ -322,8 +344,7 @@ public class VideoCardAdapter extends ListAdapter<Video, RecyclerView.ViewHolder
 
             // "Channel · 1.2M views · 3 weeks ago" like YouTube; author-only when the
             // service didn't build the info line (e.g. some playlist rows).
-            CharSequence meta = video.getSecondTitle();
-            mMeta.setText(yewMeta(context, meta == null || meta.length() == 0 ? video.getAuthor() : meta, video.getAuthor()));
+            mMeta.setText(metaFor(context, video));
 
             bindBadge(context, video);
             bindProgress(video);
@@ -342,8 +363,7 @@ public class VideoCardAdapter extends ListAdapter<Video, RecyclerView.ViewHolder
             Context context = itemView.getContext();
 
             mTitle.setText(video.getTitle());
-            CharSequence meta = video.getSecondTitle();
-            mMeta.setText(yewMeta(context, meta == null || meta.length() == 0 ? video.getAuthor() : meta, video.getAuthor()));
+            mMeta.setText(metaFor(context, video));
 
             bindBadge(context, video);
             bindProgress(video);
@@ -359,6 +379,16 @@ public class VideoCardAdapter extends ListAdapter<Video, RecyclerView.ViewHolder
          * YEWPLAY(visual): the channel in SemiBold at the start of the meta line ("Tech Direto
          * 112 mil visualizações, há 2 dias"), like the proposal's items.
          */
+        /** YEWMUSIC(home): no bloco de música, só o artista; nos outros itens, a linha completa. */
+        private CharSequence metaFor(Context context, Video video) {
+            CharSequence meta = video.getSecondTitle();
+            String author = video.getAuthor();
+            if ("tile".equals(itemView.getTag()) && author != null && !author.isEmpty()) {
+                return author;
+            }
+            return yewMeta(context, meta == null || meta.length() == 0 ? author : meta, author);
+        }
+
         private CharSequence yewMeta(Context context, CharSequence meta, @androidx.annotation.Nullable String author) {
             if (meta == null || author == null || author.isEmpty() || !meta.toString().startsWith(author)) {
                 return meta;

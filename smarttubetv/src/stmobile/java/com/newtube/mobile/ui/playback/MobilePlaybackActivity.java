@@ -698,6 +698,7 @@ public class MobilePlaybackActivity extends MobileActivity
         mSpinnerShown = mProgressBar != null && mProgressBar.getVisibility() == View.VISIBLE;
         syncPlayPauseWithSpinner();
         mSetupHint = findViewById(R.id.mobile_player_setup_hint);
+        bindMusicMode();
         mNoticeView = findViewById(R.id.mobile_player_notice);
         mCastButton = findViewById(R.id.mobile_player_cast);
         mCastOverlay = findViewById(R.id.mobile_cast_overlay);
@@ -1241,7 +1242,7 @@ public class MobilePlaybackActivity extends MobileActivity
 
         // An engine restart (error fix, network flap) while backgrounded builds a FRESH selector
         // with video re-enabled; re-apply the audio-only drop so the restart doesn't resume video.
-        if (mBackgroundAudioMode) {
+        if (mBackgroundAudioMode || MusicMode.isOn(this)) { // YEWMUSIC(player): e o modo Música
             mExoPlayerController.setVideoTrackDisabled(true);
         }
 
@@ -1671,7 +1672,8 @@ public class MobilePlaybackActivity extends MobileActivity
     private void setBackgroundAudioMode(boolean enabled) {
         mBackgroundAudioMode = enabled;
         if (mExoPlayerController != null) {
-            mExoPlayerController.setVideoTrackDisabled(enabled);
+            // YEWMUSIC(player): voltando do segundo plano, o modo Música continua sem vídeo.
+            mExoPlayerController.setVideoTrackDisabled(enabled || MusicMode.isOn(this));
             // NEWTUBE(keep-codec): no decoder kept for the next open while nothing is on screen.
             mExoPlayerController.onBackgroundAudio(enabled);
         }
@@ -4743,7 +4745,12 @@ public class MobilePlaybackActivity extends MobileActivity
                     // rendered frame is the new video, so let onSurfaceTextureUpdated lift it then.
                     if (mStillAwaitReady) {
                         mStillAwaitReady = false;
-                        if (canLiftStillAtReady()) {
+                        // YEWMUSIC(player): no modo Música nenhum quadro vai chegar - a capa já
+                        // cobre o vídeo, então a imagem de carregamento sai no READY.
+                        if (MusicMode.isOn(MobilePlaybackActivity.this)) {
+                            mStillAwaitFrame = false;
+                            liftLoadingStill("music");
+                        } else if (canLiftStillAtReady()) {
                             mStillAwaitFrame = false;
                             liftLoadingStill("ready");
                         } else {
@@ -9009,6 +9016,251 @@ public class MobilePlaybackActivity extends MobileActivity
     // PlayerManager
     // ---------------------------------------------------------------------------------
 
+    // ---------------------------------------------------------------------------------
+    // YEWMUSIC(player): seletor Música | Vídeo
+    // ---------------------------------------------------------------------------------
+
+    private View mMusicLayer;
+    private ImageView mMusicCover;
+    private ImageView mMusicCoverBg;
+    private TextView mModeMusic;
+    private TextView mModeVideo;
+    private String mMusicCoverVideoId;
+    /** YEWMUSIC(compose): o player de música em tela cheia (Proposta 2). */
+    private androidx.compose.ui.platform.ComposeView mMusicPlayer;
+
+    private void bindMusicMode() {
+        mMusicPlayer = findViewById(R.id.yew_music_player);
+        if (mMusicPlayer != null) {
+            com.newtube.mobile.music.MusicPlayerUi.install(mMusicPlayer, new MusicBridge());
+        }
+        mMusicLayer = findViewById(R.id.yew_music_layer);
+        mMusicCover = findViewById(R.id.yew_music_cover);
+        mMusicCoverBg = findViewById(R.id.yew_music_cover_bg);
+        mModeMusic = findViewById(R.id.yew_mode_music);
+        mModeVideo = findViewById(R.id.yew_mode_video);
+        if (mModeMusic != null) {
+            mModeMusic.setOnClickListener(v -> setMusicMode(true));
+        }
+        if (mModeVideo != null) {
+            mModeVideo.setOnClickListener(v -> setMusicMode(false));
+        }
+        applyMusicModeUi();
+    }
+
+    private void setMusicMode(boolean music) {
+        if (MusicMode.isOn(this) == music) {
+            return;
+        }
+        MusicMode.set(this, music);
+        if (mExoPlayerController != null) {
+            mExoPlayerController.setVideoTrackDisabled(music || mBackgroundAudioMode);
+        }
+        applyMusicModeUi();
+        if (music) {
+            bindMusicCover(getVideo());
+        }
+    }
+
+    private void applyMusicModeUi() {
+        boolean music = MusicMode.isOn(this);
+        if (mMusicLayer != null) {
+            mMusicLayer.setVisibility(music ? View.VISIBLE : View.GONE);
+        }
+        if (mMusicPlayer != null) {
+            mMusicPlayer.setVisibility(music ? View.VISIBLE : View.GONE);
+        }
+        styleModeOption(mModeMusic, music);
+        styleModeOption(mModeVideo, !music);
+    }
+
+    /**
+     * YEWMUSIC(compose): a ponte da tela de música para este player. Tudo passa pelos mesmos
+     * caminhos dos botões de sempre (presenter, curtir, baixar, salvar), então o comportamento é o
+     * mesmo do modo Vídeo.
+     */
+    private final class MusicBridge implements com.newtube.mobile.music.MusicPlayerBridge {
+        @Override
+        public com.newtube.mobile.music.MusicSnapshot snapshot() {
+            Video video = getVideo();
+            long position = 0;
+            long duration = 0;
+            boolean playing = false;
+            if (mPlayer != null) {
+                position = Math.max(0, mPlayer.getCurrentPosition());
+                long d = mPlayer.getDuration();
+                duration = d == androidx.media3.common.C.TIME_UNSET ? 0 : Math.max(0, d);
+                playing = mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() != Player.STATE_ENDED;
+            }
+            DownloadItem download = currentDownload();
+            int top = 0;
+            int bottom = 0;
+            androidx.core.view.WindowInsetsCompat insets =
+                    androidx.core.view.ViewCompat.getRootWindowInsets(getWindow().getDecorView());
+            if (insets != null) {
+                androidx.core.graphics.Insets bars = insets.getInsets(
+                        androidx.core.view.WindowInsetsCompat.Type.systemBars()
+                                | androidx.core.view.WindowInsetsCompat.Type.displayCutout());
+                top = bars.top;
+                bottom = bars.bottom;
+            }
+            String title = video != null && video.getTitle() != null ? video.getTitle() : "";
+            String artist = video != null && video.getAuthor() != null ? video.getAuthor() : "";
+            return new com.newtube.mobile.music.MusicSnapshot(
+                    video != null ? video.videoId : null, title, artist,
+                    MusicMode.coverUrl(video), MusicMode.fallbackCoverUrl(video),
+                    position, duration, playing,
+                    mWatchLike != null && mWatchLike.isSelected(),
+                    isShuffling(),
+                    PlayerData.instance(MobilePlaybackActivity.this).getPlaybackMode() == PlayerConstants.PLAYBACK_MODE_ONE,
+                    download != null && download.isDone(),
+                    top, bottom);
+        }
+
+        @Override
+        public void togglePlayPause() {
+            MobilePlaybackActivity.this.togglePlayPause();
+        }
+
+        @Override
+        public void next() {
+            if (mPresenter != null) {
+                mPresenter.onNextClicked();
+            }
+        }
+
+        @Override
+        public void previous() {
+            if (mPresenter != null) {
+                mPresenter.onPreviousClicked();
+            }
+        }
+
+        @Override
+        public void seekTo(long positionMs) {
+            if (mExoPlayerController != null) {
+                mExoPlayerController.setPositionMs(positionMs);
+            }
+        }
+
+        @Override
+        public void toggleLike() {
+            if (mWatchLike != null) {
+                mWatchLike.performClick();
+            }
+        }
+
+        @Override
+        public void toggleShuffle() {
+            toggleShuffleMode();
+        }
+
+        @Override
+        public void toggleRepeat() {
+            PlayerData data = PlayerData.instance(MobilePlaybackActivity.this);
+            int mode = data.getPlaybackMode() == PlayerConstants.PLAYBACK_MODE_ONE
+                    ? PlayerConstants.PLAYBACK_MODE_ALL : PlayerConstants.PLAYBACK_MODE_ONE;
+            data.setPlaybackMode(mode);
+            setButtonState(R.id.action_repeat, mode);
+        }
+
+        @Override
+        public void minimize() {
+            getOnBackPressedDispatcher().onBackPressed();
+        }
+
+        @Override
+        public void openMenu() {
+            openPlayerMenu();
+        }
+
+        @Override
+        public void showVideo() {
+            setMusicMode(false);
+        }
+
+        @Override
+        public void save() {
+            if (mWatchSave != null) {
+                mWatchSave.performClick();
+            }
+        }
+
+        @Override
+        public void download() {
+            if (mWatchDownload != null && mWatchDownload.getVisibility() == View.VISIBLE) {
+                mWatchDownload.performClick();
+            }
+        }
+
+        @Override
+        public void share() {
+            if (mWatchShare != null) {
+                mWatchShare.performClick();
+            }
+        }
+
+        @Override
+        public java.util.List<com.newtube.mobile.music.UpNextItem> upNext() {
+            java.util.List<com.newtube.mobile.music.UpNextItem> items = new ArrayList<>();
+            for (Video video : mRelatedVideos) {
+                if (video == null || video.videoId == null) {
+                    continue;
+                }
+                items.add(new com.newtube.mobile.music.UpNextItem(
+                        video.getTitle() != null ? video.getTitle() : "",
+                        video.getAuthor() != null ? video.getAuthor() : "",
+                        MusicMode.fallbackCoverUrl(video)));
+                if (items.size() == 30) {
+                    break;
+                }
+            }
+            return items;
+        }
+
+        @Override
+        public void playUpNext(int index) {
+            int seen = 0;
+            for (Video video : mRelatedVideos) {
+                if (video == null || video.videoId == null) {
+                    continue;
+                }
+                if (seen++ == index) {
+                    onRelatedClicked(video);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void styleModeOption(TextView option, boolean selected) {
+        if (option == null) {
+            return;
+        }
+        option.setBackgroundResource(selected ? R.drawable.bg_yew_segment_on : 0);
+        option.setTextColor(androidx.core.content.ContextCompat.getColor(this,
+                selected ? R.color.mobile_color_on_inverse_surface : R.color.mobile_color_on_surface));
+        option.setSelected(selected);
+    }
+
+    /**
+     * A capa do vídeo atual nas duas camadas. Pelo Glide da APLICAÇÃO, como a imagem de
+     * carregamento: o da activity fica pausado enquanto o vídeo abre (holdImageRequests).
+     */
+    private void bindMusicCover(Video item) {
+        if (mMusicCover == null || item == null || item.videoId == null
+                || Helpers.equals(item.videoId, mMusicCoverVideoId) || isDestroyed()) {
+            return;
+        }
+        mMusicCoverVideoId = item.videoId;
+        com.bumptech.glide.RequestManager glide = Glide.with(getApplicationContext());
+        String fallback = MusicMode.fallbackCoverUrl(item);
+        glide.load(MusicMode.coverUrl(item))
+                .error(glide.load(fallback))
+                .into(mMusicCover);
+        glide.load(fallback).into(mMusicCoverBg);
+    }
+
     @Override
     public void setVideo(Video item) {
         if (item != null && item.videoId != null) {
@@ -9040,6 +9292,9 @@ public class MobilePlaybackActivity extends MobileActivity
             setTitle(item != null ? item.getTitleFull() : null);
         }
         bindWatchVideo(item);
+        if (!sameVideo) {
+            runOnUiThread(() -> bindMusicCover(item));
+        }
 
         // LOADING STILL: a DIFFERENT video was just set on this (reused) view. The texture still
         // shows the previous video's last frame and the new audio starts as soon as it buffers,
