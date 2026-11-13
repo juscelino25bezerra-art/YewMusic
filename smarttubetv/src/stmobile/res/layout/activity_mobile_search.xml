@@ -115,6 +115,16 @@
             android:scrollbars="vertical"
             tools:listitem="@layout/item_video_card" />
 
+        <!-- YEWMUSIC(search): os resultados da Proposta 2 por cima da grade (que continua recebendo
+             a lista e paginando). Mensagem e sugestões ficam por cima dela. -->
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/yew_search_results"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="false"
+            android:visibility="gone" />
+
         <!-- NEWTUBE(motion): results load under card ghosts (the feed's shimmering skeleton), not
              a centered spinner; only over an empty list (MobileSearchActivity.showProgressBar). -->
         <include
