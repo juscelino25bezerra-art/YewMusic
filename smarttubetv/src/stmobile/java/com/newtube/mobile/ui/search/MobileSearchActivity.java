@@ -317,6 +317,7 @@ public class MobileSearchActivity extends MobileActivity
     private void setupGrid() {
         mLayoutManager = new GridLayoutManager(this, computeSpanCount());
         mAdapter = new VideoCardAdapter(this::onVideoClicked, this::onVideoLongClicked);
+        setupMusicResults();
 
         // Channel results render as full-width rows even when landscape/tablet uses 2+ columns.
         mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -543,6 +544,63 @@ public class MobileSearchActivity extends MobileActivity
         }
         mPresenter.onVideoItemLongClicked(video);
         return true;
+    }
+
+    // YEWMUSIC(search): resultados da Proposta 2 em Compose
+    private androidx.compose.ui.platform.ComposeView mMusicResults;
+    private final com.newtube.mobile.music.MusicSearchState mMusicResultsState = new com.newtube.mobile.music.MusicSearchState();
+
+    private void setupMusicResults() {
+        mMusicResults = findViewById(R.id.yew_search_results);
+        if (mMusicResults == null) {
+            return;
+        }
+        com.newtube.mobile.music.MusicSearchUi.install(mMusicResults, mMusicResultsState, new com.newtube.mobile.music.MusicSearchBridge() {
+            @Override
+            public void open(@NonNull Video video) {
+                onVideoClicked(video);
+            }
+
+            @Override
+            public void menu(@NonNull Video video) {
+                onVideoLongClicked(video);
+            }
+
+            @Override
+            public void onNearEnd() {
+                pageFromMusicResults();
+            }
+
+            @Override
+            public int bottomPaddingPx() {
+                return mGrid != null ? mGrid.getPaddingBottom() : 0;
+            }
+        });
+        mAdapter.setListListener(list -> {
+            mMusicResultsState.setVideos(list);
+            mMusicResults.setVisibility(list.isEmpty() ? View.GONE : View.VISIBLE);
+            // One list for TalkBack: the grid underneath is hidden from it while the new one shows.
+            mGrid.setImportantForAccessibility(list.isEmpty()
+                    ? View.IMPORTANT_FOR_ACCESSIBILITY_AUTO : View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        });
+    }
+
+    /** The grid's own pagination reads its scroll position, which the Compose list covers. */
+    private void pageFromMusicResults() {
+        if (mVideos.isEmpty() || mPresenter == null) {
+            return;
+        }
+        int itemCount = mAdapter.getItemCount();
+        if (itemCount == 0 || itemCount == mLastPaginationTriggerCount) {
+            return;
+        }
+        VideoGroup more = firstGroupWithMore();
+        if (more == null) {
+            return;
+        }
+        mTopUp.onUserAction();
+        mLastPaginationTriggerCount = itemCount;
+        mPresenter.onScrollEnd(lastOf(more));
     }
 
     private void maybeTriggerPagination(boolean userScroll) {

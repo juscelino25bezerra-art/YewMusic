@@ -147,7 +147,11 @@ fun MusicHomeScreen(state: MusicHomeState, bridge: MusicHomeBridge) {
         state = listState,
         contentPadding = PaddingValues(bottom = bottom + 24.dp),
     ) {
-        if (!explore) item(key = "moods") { MoodChips(bridge) }
+        if (explore) {
+            exploreContent(bridge)
+            return@LazyColumn
+        }
+        item(key = "moods") { MoodChips(bridge) }
         if (recent.isNotEmpty()) {
             item(key = "recent") {
                 Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 22.dp)) {

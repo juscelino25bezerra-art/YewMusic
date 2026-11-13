@@ -1219,8 +1219,9 @@ public class MobileBrowseActivity extends MobileActivity
             return;
         }
         boolean explore = mCurrentSectionId == MediaGroup.TYPE_TRENDING;
-        boolean show = (mCurrentSectionId == MediaGroup.TYPE_HOME || explore) && !mYouShowing && !mSectionFromYou
-                && !mAdapter.getCurrentList().isEmpty();
+        // Explorar is the app's own Mosaico (no feed needed); Início needs the feed's shelves.
+        boolean show = !mYouShowing && !mSectionFromYou && (explore
+                || (mCurrentSectionId == MediaGroup.TYPE_HOME && !mAdapter.getCurrentList().isEmpty()));
         mMusicHomeState.setExplore(explore);
         mMusicHome.setVisibility(show ? View.VISIBLE : View.GONE);
         // The grid underneath keeps the feed; only one of them is read out by TalkBack.
