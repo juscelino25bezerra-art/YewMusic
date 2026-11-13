@@ -187,6 +187,25 @@ public class VideoCardAdapter extends ListAdapter<Video, RecyclerView.ViewHolder
         return mMusicTiles;
     }
 
+    /** YEWMUSIC(home): quem mais quer saber da lista que acabou de entrar (o Início em Compose). */
+    public interface ListListener {
+        void onListChanged(@NonNull java.util.List<Video> current);
+    }
+
+    private ListListener mListListener;
+
+    public void setListListener(ListListener listener) {
+        mListListener = listener;
+    }
+
+    @Override
+    public void onCurrentListChanged(@NonNull java.util.List<Video> previousList, @NonNull java.util.List<Video> currentList) {
+        super.onCurrentListChanged(previousList, currentList);
+        if (mListListener != null) {
+            mListListener.onListChanged(currentList);
+        }
+    }
+
     public void setHeroFirst(boolean hero) {
         if (mHeroFirst == hero) {
             return;
